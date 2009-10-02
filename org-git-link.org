@@ -41,49 +41,7 @@
     [[git:$GIT_DIR:<$COMMIT>:$FILE]]. Following the link would then show a
     temporary buffer with the output of 
     : git --no-pager --git-dir=$GIT_DIR</.git> show $COMMIT:$FILE
-
-** DONE Check out man pages of git-rev-parse 
-   :LOGBOOK:
-   - State "DONE"       from "STARTED"    [2009-07-24 Fri 17:08]
-   CLOCK: [2009-07-24 Fri 16:55]--[2009-07-24 Fri 17:08] =>  0:13
-   :END:
-   Find out the possibilities to specify a file in a specific
-   branch and version. See [[id:83573d86-8df3-4f56-9927-a917e4b62509][Specifying objects]].
-** DONE Check whether attachments care about commits
-   :LOGBOOK:
-   - State "DONE"       from "STARTED"    [2009-07-24 Fri 15:56]
-   CLOCK: [2009-07-24 Fri 15:54]--[2009-07-24 Fri 15:56] =>  0:02
-   :END:
-   No they don't. (Only creating their own commits). No help
-   from there.
-** DONE Find out how to create new link types 
-   :LOGBOOK:
-   - State "DONE"       from "STARTED"    [2009-07-24 Fri 15:54]
-   CLOCK: [2009-07-24 Fri 15:46]--[2009-07-24 Fri 15:54] =>  0:08
-   :END:
-   See [[info:org:Adding%20hyperlink%20types][info:org:Adding hyperlink types]]
-** DONE Find a way to get the specific xxx file mentioned above
-   :LOGBOOK:
-   - State "DONE"       from "STARTED"    [2009-07-24 Fri 15:45]
-   CLOCK: [2009-07-24 Fri 15:30]--[2009-07-24 Fri 15:45] =>  0:15
-   :END:
-   =git show xxxantwort:xxx-antrag.tex= does the trick.
-** STARTED find out how to fill buffer with result of shell process  :ATTACH:
-   :LOGBOOK:
-   CLOCK: [2009-10-01 Thu 16:30]--[2009-10-01 Thu 17:07] =>  0:37
-   CLOCK: [2009-07-24 Fri 16:24]--[2009-07-24 Fri 17:03] =>  0:39
-   CLOCK: [2009-07-24 Fri 15:58]--[2009-07-24 Fri 16:20] =>  0:22
-   :END:
-   :PROPERTIES:
-   :Attachments: simple.el man.el org-git.el
-   :ID:       19e759de-ea08-4848-9799-1303a5cc078f
-   :END:
-   Looking at simple.el (shell-command-on-region) and man.el
-   (man) to find out how to call shell processes. Synchronous
-   calling ist simpler. shell-command should simply work,
-   though.
-** TODO find out how to create a new link type in org-mode
-** TODO write test file in org-mode
+* References
 ** Specifying objects
     :PROPERTIES:
     :ID:       83573d86-8df3-4f56-9927-a917e4b62509
@@ -243,3 +201,46 @@ git show master~4:
 git show master~4:doc/
 git show master~4:doc/ChangeLog
 #+end_EXAMPLE
+* Tasks:
+** DONE Check out man pages of git-rev-parse 
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-07-24 Fri 17:08]
+   CLOCK: [2009-07-24 Fri 16:55]--[2009-07-24 Fri 17:08] =>  0:13
+   :END:
+   Find out the possibilities to specify a file in a specific
+   branch and version. See [[id:83573d86-8df3-4f56-9927-a917e4b62509][Specifying objects]].
+** DONE Check whether attachments care about commits
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-07-24 Fri 15:56]
+   CLOCK: [2009-07-24 Fri 15:54]--[2009-07-24 Fri 15:56] =>  0:02
+   :END:
+   No they don't. (Only creating their own commits). No help
+   from there.
+** DONE Find out how to create new link types 
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-07-24 Fri 15:54]
+   CLOCK: [2009-07-24 Fri 15:46]--[2009-07-24 Fri 15:54] =>  0:08
+   :END:
+   See [[info:org:Adding%20hyperlink%20types][info:org:Adding hyperlink types]]
+** DONE Find a way to get the specific xxx file mentioned above
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-07-24 Fri 15:45]
+   CLOCK: [2009-07-24 Fri 15:30]--[2009-07-24 Fri 15:45] =>  0:15
+   :END:
+   =git show xxxantwort:xxx-antrag.tex= does the trick.
+** STARTED find out how to fill buffer with result of shell process  :ATTACH:
+   :LOGBOOK:
+   CLOCK: [2009-10-01 Thu 16:30]--[2009-10-01 Thu 17:07] =>  0:37
+   CLOCK: [2009-07-24 Fri 16:24]--[2009-07-24 Fri 17:03] =>  0:39
+   CLOCK: [2009-07-24 Fri 15:58]--[2009-07-24 Fri 16:20] =>  0:22
+   :END:
+   :PROPERTIES:
+   :Attachments: simple.el man.el org-git.el
+   :ID:       19e759de-ea08-4848-9799-1303a5cc078f
+   :END:
+   Looking at simple.el (shell-command-on-region) and man.el
+   (man) to find out how to call shell processes. Synchronous
+   calling ist simpler. shell-command should simply work,
+   though.
+** TODO find out how to create a new link type in org-mode
+** TODO write test file in org-mode
