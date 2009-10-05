@@ -26,7 +26,7 @@
     either =git-show= or =git-checkout= (or even =git-cat-file=)
     the specific file. =git-checkout= changes the working
     directory, which ist probably not what we want (you can
-    always use =magit= or =vc-git= for that. Therefore,
+    always use =magit= or =vc-git= for that). Therefore,
     =git-show= is probably the best choice (see also the git FAQ
     entry). In the link need to specify
     - the git directory,
@@ -41,6 +41,33 @@
     [[git:$GIT_DIR:<$COMMIT>:$FILE]]. Following the link would then show a
     temporary buffer with the output of 
     : git --no-pager --git-dir=$GIT_DIR</.git> show $COMMIT:$FILE
+    
+    One problem with this is that the commit can also contain one
+    or more colons. Therefore the commit part should be the last
+    part of the link. Another issue is to be as user friendly as
+    possible for the default usage, which is saying: I want
+    version such and such (or a particular branch) of this file.
+    I therefore propose the following syntax:
+
+* Proposed Git link syntax
+  [[git:$PATH_TO_FILE:$COMMIT]] 
+  At the moment I restrict myself to files in a working directory
+  and ignore bare repositories on purpose (that will change
+  later). From the (not necessarily existing) file path we must
+  first extract the GIT_DIR. This is done in the following way:
+  Starting with the directory of our current file, we check whether 
+  - the directory exists and
+  - whether a .git subdirectory exists.
+  If not, we try the same with the parent directory. The
+  $PATH_TO_FILE (which can be given as a local link) is thus
+  separated into a  GIT_DIR part and a FILE part without a
+  preceding slash. Git is now
+  called as 
+    : git --no-pager --git-dir=$GIT_DIR/.git show $COMMIT:$FILE
+  Colons in the remaining COMMIT string (to specify files in the
+  index or commits starting with a certain string) are processed
+  as is.
+
 * References
 ** Specifying objects
     :PROPERTIES:
@@ -201,6 +228,8 @@ git show master~4:
 git show master~4:doc/
 git show master~4:doc/ChangeLog
 #+end_EXAMPLE
+* Implementation
+  [[file:org-git-link.el]]
 * Tasks:
 ** DONE Check out man pages of git-rev-parse 
    :LOGBOOK:
@@ -228,8 +257,10 @@ git show master~4:doc/ChangeLog
    CLOCK: [2009-07-24 Fri 15:30]--[2009-07-24 Fri 15:45] =>  0:15
    :END:
    =git show xxxantwort:xxx-antrag.tex= does the trick.
-** STARTED find out how to fill buffer with result of shell process  :ATTACH:
+** DONE find out how to fill buffer with result of shell process     :ATTACH:
    :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-05 Mon 17:35]
+   CLOCK: [2009-10-05 Mon 17:28]--[2009-10-05 Mon 17:35] =>  0:07
    CLOCK: [2009-10-01 Thu 16:30]--[2009-10-01 Thu 17:07] =>  0:37
    CLOCK: [2009-07-24 Fri 16:24]--[2009-07-24 Fri 17:03] =>  0:39
    CLOCK: [2009-07-24 Fri 15:58]--[2009-07-24 Fri 16:20] =>  0:22
@@ -240,7 +271,60 @@ git show master~4:doc/ChangeLog
    :END:
    Looking at simple.el (shell-command-on-region) and man.el
    (man) to find out how to call shell processes. Synchronous
-   calling ist simpler. shell-command should simply work,
-   though.
-** TODO find out how to create a new link type in org-mode
-** TODO write test file in org-mode
+   calling ist simpler. shell-command should simply work, though.
+   I will simply use shell-command or call-process. Don't know
+   whether we need a shell. Actually, I don't need to spawn a
+   shell just to call git. Let's try =call-process=, see
+   [[info:elisp:Synchronous%20Processes][info:elisp:Synchronous Processes]].
+
+** DONE Specify link syntax
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-05 Mon 17:03]
+   CLOCK: [2009-10-05 Mon 16:30]--[2009-10-05 Mon 17:03] =>  0:33
+   :END:
+** DONE find out how to create a new link type in org-mode
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2009-10-05 Mon 17:35]
+   :END:
+   :PROPERTIES:
+   :ID:       be9f8577-3e78-49c6-925c-090adc403fc6
+   :END:
+   See [[info:org:Adding%20hyperlink%20types][info:org:Adding hyperlink types]] and
+,----[ C-h f org-add-link-type RET ]
+| org-add-link-type is a compiled Lisp function in `org.el'.
+| 
+| (org-add-link-type type &optional follow export)
+| 
+| Add type to the list of `org-link-types'.
+| Re-compute all regular expressions depending on `org-link-types'
+| 
+| follow and export are two functions.
+| 
+| follow should take the link path as the single argument and do whatever
+| is necessary to follow the link, for example find a file or display
+| a mail message.
+| 
+| export should format the link path for export to one of the export formats.
+| It should be a function accepting three arguments:
+| 
+|   path    the path of the link, the text after the prefix (like "http:")
+|   desc    the description of the link, if any, nil if there was no description
+|   format  the export format, a symbol like `html' or `latex'.
+| 
+| The function may use the FORMAT information to return different values
+| depending on the format.  The return value will be put literally into
+| the exported file.
+| Org-mode has a built-in default for exporting links.  If you are happy with
+| this default, there is no need to define an export function for the link
+| type.  For a simple example of an export function, see `org-bbdb.el'.
+| 
+| [back]
+`----
+
+** STARTED write test file in org-mode
+   :LOGBOOK:
+   CLOCK: [2009-10-05 Mon 17:51]--[2009-10-05 Mon 18:04] =>  0:13
+   :END:
+** TODO write test git directory
+** TODO Decide whether we need special export treatment
+   See =export= argument in =org-add-link-type=
