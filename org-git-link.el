@@ -23,7 +23,14 @@
 ;; 
 
 ;;; Code:
+
+;; org link functions 
+
+;; extracting the search string
+
+
 ;; Utility functions (file names etc)
+
 
 ;; Calling git
 (provide 'org-git-link)

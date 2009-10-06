@@ -69,6 +69,18 @@
   as is.
 
 * References
+** Structure of the test git directory
+   =testgitrepos= is a normal subdirectory of the source
+   directory under git control. The following states have been
+   tagged:
+
+   - firstlevelfiles :: a.txt, b.txt, c.txt with contents a, b, c
+        in testgitrepos directory
+
+   - foobarbaztxt :: add foo/bar/baz.txt with contents baz
+
+   - deletebaztxt :: removed foo/bar/baz.txt
+
 ** Specifying objects
     :PROPERTIES:
     :ID:       83573d86-8df3-4f56-9927-a917e4b62509
@@ -321,10 +333,20 @@ git show master~4:doc/ChangeLog
 | [back]
 `----
 
-** STARTED write test file in org-mode
+** STARTED write test file in org-mode                              :PROJECT:
    :LOGBOOK:
+   - Note taken on [2009-10-06 Tue 18:07] \\
+     First, we need to define the actual structure of the git link
+     file and  test file
+   CLOCK: [2009-10-06 Tue 17:43]--[2009-10-06 Tue 18:04] =>  0:21
    CLOCK: [2009-10-05 Mon 17:51]--[2009-10-05 Mon 18:04] =>  0:13
    :END:
-** TODO write test git directory
+** DONE write test git directory
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-06 Tue 17:41]
+   CLOCK: [2009-10-06 Tue 17:22]
+   :END:
+
+
 ** TODO Decide whether we need special export treatment
    See =export= argument in =org-add-link-type=
