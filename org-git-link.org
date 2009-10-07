@@ -365,6 +365,13 @@ git show master~4:doc/ChangeLog
    CLOCK: [2009-10-06 Tue 17:22]
    :END:
 
-
 ** TODO Decide whether we need special export treatment
    See =export= argument in =org-add-link-type=
+** STARTED Decide whether to write to a buffer or to a temporary file
+   :LOGBOOK:
+   CLOCK: [2009-10-07 Wed 14:41]--[2009-10-07 Wed 15:00] =>  0:19
+   :END:
+   I don't know whether one can view e.g. images (.png) directly
+   in an emacs buffer. To my knowledge only temporary files are
+   treated according to auto-mode-alist. Maybe I should decide
+   later and first go with the temorary buffer route.
