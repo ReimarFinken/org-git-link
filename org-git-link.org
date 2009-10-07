@@ -37,10 +37,6 @@
     - the commit of the specific file version (HEAD by default),
     - the path to the file from GIT_DIR.
 
-    The link format would presumably look something like
-    [[git:$GIT_DIR:<$COMMIT>:$FILE]]. Following the link would then show a
-    temporary buffer with the output of 
-    : git --no-pager --git-dir=$GIT_DIR</.git> show $COMMIT:$FILE
     
     One problem with this is that the commit can also contain one
     or more colons. Therefore the commit part should be the last
@@ -50,24 +46,40 @@
     I therefore propose the following syntax:
 
 * Proposed Git link syntax
-  [[git:$PATH_TO_FILE:$COMMIT]] 
-  At the moment I restrict myself to files in a working directory
-  and ignore bare repositories on purpose (that will change
-  later). From the (not necessarily existing) file path we must
-  first extract the GIT_DIR. This is done in the following way:
-  Starting with the directory of our current file, we check whether 
-  - the directory exists and
-  - whether a .git subdirectory exists.
-  If not, we try the same with the parent directory. The
-  $PATH_TO_FILE (which can be given as a local link) is thus
-  separated into a  GIT_DIR part and a FILE part without a
-  preceding slash. Git is now
-  called as 
-    : git --no-pager --git-dir=$GIT_DIR/.git show $COMMIT:$FILE
-  Colons in the remaining COMMIT string (to specify files in the
-  index or commits starting with a certain string) are processed
-  as is.
+  - Bare git form :: [[git:$GIT_DIR::$OBJECT]]
+    Example:
+    #+begin_EXAMPLE 
+    [[gitbare:~/misc/xxx-antrag/.git::xxxantwort:xxx-antrag.tex]]
+    #+end_EXAMPLE
+    This is the more bare metal version and directly translates
+    to
+    : git --no-pager --git-dir=$GIT_DIR show $OBJECT
+    Using this version one can also view files from a bare git
+    repository.
 
+  - User friendy form :: [[git:$PATH_TO_FILE::$COMMIT]]
+    Example:
+    #+begin_EXAMPLE 
+    [[git:~/misc/xxx-antrag/xxx-antrag.tex::xxxantwort]]
+    #+end_EXAMPLE
+    This is restricted to files in a working directory and ignores
+    bare repositories on purpose (see the bare form for that). From
+    the (not necessarily existing) file path we must first
+    extract the GIT_DIR. This is done in the following way:
+    Starting with the directory of our current file, we check
+    whether
+ 
+    - the directory exists and
+    - whether a .git subdirectory exists.
+
+    If not, we try the same with the parent directory. The
+    $PATH_TO_FILE (which can be given as a local link) is thus
+    separated into a GIT_DIR part and a FILE part without a
+    preceding slash. Git is now called as
+    : git --no-pager --git-dir=$GIT_DIR/.git show $COMMIT:$FILE
+    Colons in the remaining COMMIT string (to specify files in
+    the index or commits starting with a certain string) are
+    processed as is.
 * References
 ** Structure of the test git directory
    =testgitrepos= is a normal subdirectory of the source
@@ -291,6 +303,9 @@ git show master~4:doc/ChangeLog
 
 ** DONE Specify link syntax
    :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-07 Wed 14:40]
+   - State "STARTED"    from "DONE"       [2009-10-07 Wed 14:24]
+   CLOCK: [2009-10-07 Wed 14:24]--[2009-10-07 Wed 14:40] =>  0:16
    - State "DONE"       from "STARTED"    [2009-10-05 Mon 17:03]
    CLOCK: [2009-10-05 Mon 16:30]--[2009-10-05 Mon 17:03] =>  0:33
    :END:
@@ -333,11 +348,14 @@ git show master~4:doc/ChangeLog
 | [back]
 `----
 
-** STARTED write test file in org-mode                              :PROJECT:
+** write test file in org-mode                                      :PROJECT:
    :LOGBOOK:
    - Note taken on [2009-10-06 Tue 18:07] \\
      First, we need to define the actual structure of the git link
      file and  test file
+   :END:
+*** STARTED plan structure of git link and test file
+   :LOGBOOK:
    CLOCK: [2009-10-06 Tue 17:43]--[2009-10-06 Tue 18:04] =>  0:21
    CLOCK: [2009-10-05 Mon 17:51]--[2009-10-05 Mon 18:04] =>  0:13
    :END:
