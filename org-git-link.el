@@ -10,7 +10,7 @@
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
 
-;; This program is distributed in the hope that it will be useful,
+;; This program is distaributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
@@ -24,15 +24,53 @@
 
 ;;; Code:
 
+(require 'org)
+(defcustom org-git-program "git"
+  "Name of the git executable used to follow git links." 
+  :type '(string)
+  :group 'org)
+
 ;; org link functions 
+;; bare git link
+(org-add-link-type "gitbare" 'org-gitbare-open)
+(defun org-gitbare-open (str)
+  (let* ((strlist (org-git-split-string str))
+         (gitdir (first strlist))
+         (object (second strlist))
+         (buffer (get-buffer-create (concat "*" object "*"))))
+    (set-buffer buffer) 
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (org-git-show gitdir object buffer))
+    (setq buffer-read-only t)))
+
+
+;; user friendly link
+(org-add-link-type "git" 'org-git-open)
 
 ;; extracting the search string
 
 
 ;; Utility functions (file names etc)
 
+;; splitting the link string 
+
+;; Both link open functions are called with a string of
+;; consisting of two parts separated by a double colon (::).
+(defun org-git-split-string (str)
+  "Given a string of the form \"str1::str2\", return a list of
+  two substrings \'(\"str1\" \"str2\")" 
+  (split-string str "::"))
 
 ;; Calling git
+(defun org-git-show (gitdir object buffer)
+  "Show the output of git --git-dir=gidir show object in buffer."
+  (unless 
+      (zerop (call-process org-git-program nil buffer t
+                           "--no-pager" (concat "--git-dir=" gitdir) "show" object))
+    (error "git error: %s " (save-excursion (set-buffer buffer) 
+                                            (buffer-string)))))
+
 (provide 'org-git-link)
 ;;; org-git-link.el ends here
 

@@ -81,6 +81,8 @@
     the index or commits starting with a certain string) are
     processed as is.
 * References
+** Testing whether git directory is valid
+     Valid git directory can be tested with git-rev-parse --git-dir=...
 ** Structure of the test git directory
    =testgitrepos= is a normal subdirectory of the source
    directory under git control. The following states have been
@@ -352,19 +354,35 @@ git show master~4:doc/ChangeLog
      First, we need to define the actual structure of the git link
      file and  test file
    :END:
-*** STARTED plan structure of git link and test file
+*** DONE plan structure of git link and test file
+    - Note taken on [2009-10-10 Sat 00:49] \\
+      test is still failing because two subsequent links append to the buffer rather than delete first.
    :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-06 Tue 18:05]
    CLOCK: [2009-10-06 Tue 17:43]--[2009-10-06 Tue 18:04] =>  0:21
    CLOCK: [2009-10-05 Mon 17:51]--[2009-10-05 Mon 18:04] =>  0:13
    :END:
+*** DONE implement bare git type
+    :LOGBOOK:
+    CLOCK: [2009-10-09 Fri 16:40]--[2009-10-09 Fri 17:46] =>  1:06
+    CLOCK: [2009-10-09 Fri 15:35]--[2009-10-09 Fri 15:37] =>  0:02
+    :END:
 ** DONE write test git directory
    :LOGBOOK:
    - State "DONE"       from "STARTED"    [2009-10-06 Tue 17:41]
    CLOCK: [2009-10-06 Tue 17:22]
    :END:
-
 ** TODO Decide whether we need special export treatment
    See =export= argument in =org-add-link-type=
+** DONE rewriting history for private email address
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-09 Fri 16:39]
+   CLOCK: [2009-10-09 Fri 16:25]--[2009-10-09 Fri 16:39] =>  0:14
+   :END:
+: git filter-branch --env-filter '
+: export  GIT_AUTHOR_EMAIL="Reimar.Finken@gmx.de"
+: export  GIT_COMMITTER_EMAIL="Reimar.Finken@gmx.de"
+: '
 ** STARTED Decide whether to write to a buffer or to a temporary file
    :LOGBOOK:
    CLOCK: [2009-10-07 Wed 14:41]--[2009-10-07 Wed 15:00] =>  0:19
