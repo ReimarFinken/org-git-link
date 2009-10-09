@@ -92,7 +92,36 @@
    - foobarbaztxt :: add foo/bar/baz.txt with contents baz
 
    - deletebaztxt :: removed foo/bar/baz.txt
+** Creating a Link type in org mode
+   See [[info:org:Adding%20hyperlink%20types][info:org:Adding hyperlink types]] and
+#+begin_EXAMPLE 
+org-add-link-type is a compiled Lisp function in `org.el'.
 
+(org-add-link-type type &optional follow export)
+
+Add type to the list of `org-link-types'.
+Re-compute all regular expressions depending on `org-link-types'
+
+follow and export are two functions.
+
+follow should take the link path as the single argument and do whatever
+is necessary to follow the link, for example find a file or display
+a mail message.
+
+export should format the link path for export to one of the export formats.
+It should be a function accepting three arguments:
+
+  path    the path of the link, the text after the prefix (like "http:")
+  desc    the description of the link, if any, nil if there was no description
+  format  the export format, a symbol like `html' or `latex'.
+
+The function may use the FORMAT information to return different values
+depending on the format.  The return value will be put literally into
+the exported file.
+Org-mode has a built-in default for exporting links.  If you are happy with
+this default, there is no need to define an export function for the link
+type.  For a simple example of an export function, see `org-bbdb.el'.
+#+end_EXAMPLE
 ** Specifying objects
     :PROPERTIES:
     :ID:       83573d86-8df3-4f56-9927-a917e4b62509
@@ -253,7 +282,8 @@ git show master~4:doc/
 git show master~4:doc/ChangeLog
 #+end_EXAMPLE
 * Implementation
-  [[file:org-git-link.el]]
+  - [[file:org-git-link.el][Source file]]
+  - [[file:test/test-git-link.el][Test file]]
 * Tasks:
 ** DONE Check out man pages of git-rev-parse 
    :LOGBOOK:
@@ -316,38 +346,6 @@ git show master~4:doc/ChangeLog
    :PROPERTIES:
    :ID:       be9f8577-3e78-49c6-925c-090adc403fc6
    :END:
-   See [[info:org:Adding%20hyperlink%20types][info:org:Adding hyperlink types]] and
-,----[ C-h f org-add-link-type RET ]
-| org-add-link-type is a compiled Lisp function in `org.el'.
-| 
-| (org-add-link-type type &optional follow export)
-| 
-| Add type to the list of `org-link-types'.
-| Re-compute all regular expressions depending on `org-link-types'
-| 
-| follow and export are two functions.
-| 
-| follow should take the link path as the single argument and do whatever
-| is necessary to follow the link, for example find a file or display
-| a mail message.
-| 
-| export should format the link path for export to one of the export formats.
-| It should be a function accepting three arguments:
-| 
-|   path    the path of the link, the text after the prefix (like "http:")
-|   desc    the description of the link, if any, nil if there was no description
-|   format  the export format, a symbol like `html' or `latex'.
-| 
-| The function may use the FORMAT information to return different values
-| depending on the format.  The return value will be put literally into
-| the exported file.
-| Org-mode has a built-in default for exporting links.  If you are happy with
-| this default, there is no need to define an export function for the link
-| type.  For a simple example of an export function, see `org-bbdb.el'.
-| 
-| [back]
-`----
-
 ** write test file in org-mode                                      :PROJECT:
    :LOGBOOK:
    - Note taken on [2009-10-06 Tue 18:07] \\
