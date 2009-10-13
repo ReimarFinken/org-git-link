@@ -37,12 +37,12 @@
   (let* ((strlist (org-git-split-string str))
          (gitdir (first strlist))
          (object (second strlist))
-         (buffer (get-buffer-create (concat "*" object "*"))))
-    (set-buffer buffer) 
-    (let ((inhibit-read-only t))
-      (erase-buffer)
-      (org-git-show gitdir object buffer))
-    (setq buffer-read-only t)))
+         (tmpdir (make-temp-file "org-git" t))
+         (filename (org-git-link-filename object))
+         (tmpfile (expand-file-name filename tmpdir)))
+    (with-temp-file tmpfile 
+      (org-git-show gitdir object (current-buffer)))
+    (org-open-file tmpfile)))
 
 
 ;; user friendly link
