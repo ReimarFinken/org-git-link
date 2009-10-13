@@ -289,6 +289,9 @@ git show master~4:doc/ChangeLog
 * Implementation
   - [[file:org-git-link.el][Source file]]
   - [[file:test/test-git-link.el][Test file]]
+* Sandbox:
+  [[gitbare:.git::deletebaztxt:test/testgitrepos/b.txt]]
+  [[gitbare:.git:::test/testgitrepos/unicorn.png]]
 * Tasks:
 ** DONE Check out man pages of git-rev-parse 
    :LOGBOOK:
@@ -357,8 +360,9 @@ git show master~4:doc/ChangeLog
    :PROPERTIES:
    :ID:       be9f8577-3e78-49c6-925c-090adc403fc6
    :END:
-** write test file in org-mode                                      :PROJECT:
+** DONE write test file in org-mode                                 :PROJECT:
    :LOGBOOK:
+   - State "DONE"       from ""           [2009-10-13 Tue 17:09]
    - Note taken on [2009-10-06 Tue 18:07] \\
      First, we need to define the actual structure of the git link
      file and  test file
@@ -440,6 +444,14 @@ git show master~4:doc/ChangeLog
    treated according to auto-mode-alist. In branch savefile I
    will use temporary files, which are then opened with org-open-file.
    later and first go with the temorary buffer route.
+** DONE check whether viewing images also works
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-13 Tue 17:21]
+   CLOCK: [2009-10-13 Tue 17:14]--[2009-10-13 Tue 17:21] =>  0:07
+   :END:
+** Implement git link                                          :PROJECT:
+*** TODO refactor existing code so that git link can call gitbare link infrastructure
+*** TODO write function which finds git-dir
 ** TODO decide how to display commits
    :LOGBOOK:
    - Note taken on [2009-10-13 Tue 15:19] \\
