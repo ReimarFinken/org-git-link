@@ -61,8 +61,19 @@
   "Given a string of the form \"str1::str2\", return a list of
   two substrings \'(\"str1\" \"str2\")" 
   (split-string str "::"))
+
+;; finding the file name part of a commit
+(defun org-git-link-filename (str)
+  "Given an object description (see the man page of
+  git-rev-parse), return the nondirectory part of the referenced
+  filename, if it can be extracted. Otherwise, return a valid
+  filename."
+  (let* ((match (and (string-match "[^:]+$" str)
+                     (match-string 0 str)))
+         (filename (and match (file-name-nondirectory match)))) ;extract the final part without slash
+    filename))
 
-;; Calling git
+;; calling git
 (defun org-git-show (gitdir object buffer)
   "Show the output of git --git-dir=gidir show object in buffer."
   (unless 

@@ -82,7 +82,10 @@
     processed as is.
 * References
 ** Testing whether git directory is valid
-     Valid git directory can be tested with git-rev-parse --git-dir=...
+   Valid git directory can be tested with git-rev-parse
+   --git-dir=...
+   other scripts simply test for the existence of .git / the name
+   ending in .git
 ** Structure of the test git directory
    =testgitrepos= is a normal subdirectory of the source
    directory under git control. The following states have been
@@ -367,6 +370,49 @@ git show master~4:doc/ChangeLog
     CLOCK: [2009-10-09 Fri 16:40]--[2009-10-09 Fri 17:46] =>  1:06
     CLOCK: [2009-10-09 Fri 15:35]--[2009-10-09 Fri 15:37] =>  0:02
     :END:
+** TODO rewrite org-git-show link to use org-open-file
+   :LOGBOOK:
+   - Note taken on [2009-10-12 Mon 16:59] \\
+     branch savefile
+   :END:
+   This is so that external apps and internal image viewers are
+   automatically called. We need a new specification for
+   org-git-show and need to find a way to extract a filename from
+   the commit (I think it is safe to restrict ourselves to file
+   links). Unfortunately org-open-at-point does not return the
+   buffer of the visited file (well it cannot, since it might be
+   displayed in an external program). 
+** DONE find way to extract filename from commit part
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-13 Tue 15:18]
+   - State "STARTED"    from "DONE"       [2009-10-13 Tue 15:13]
+   CLOCK: [2009-10-13 Tue 15:13]--[2009-10-13 Tue 15:18] =>  0:05
+   - State "DONE"       from "STARTED"    [2009-10-12 Mon 17:50]
+   CLOCK: [2009-10-12 Mon 17:32]--[2009-10-12 Mon 17:50] =>  0:18
+   :END:
+   - links to diffs (commits) might be useful too. Let's see how
+     magit handles these. At the moment we focus on file names
+   - symbolic ref names are probably of no use for permanent
+     storage. We can ignore those (but can also use HEAD etc. as
+     file names). They are part of the ref before the path anyway
+   - [X] if the commit part is simply a sha1, we have no information.
+         We can just take the sha as filename
+   - [X] A special case of the above are commits specified by the
+     beginning of the commit-message (e.g. of the form =git
+     show :/Delete=). These are specified by a colon followed
+     immediately by a slash. In this case we can use the search
+     string as a filename.
+   - [X] For our most important case (suffix colon followed by a
+     path) we can simply extract the part after the colon and use 
+     (file-name-nondirectory "lewis/foo") on that
+   - [X] For a link to an index file in a merge (not very useful),
+     taking the file name of the part after the last colon should
+     again also work
+** TODO decide how to display commits
+   :LOGBOOK:
+   - Note taken on [2009-10-13 Tue 15:19] \\
+     in a separate branch
+   :END:
 ** DONE write test git directory
    :LOGBOOK:
    - State "DONE"       from "STARTED"    [2009-10-06 Tue 17:41]
@@ -383,11 +429,13 @@ git show master~4:doc/ChangeLog
 : export  GIT_AUTHOR_EMAIL="Reimar.Finken@gmx.de"
 : export  GIT_COMMITTER_EMAIL="Reimar.Finken@gmx.de"
 : '
-** STARTED Decide whether to write to a buffer or to a temporary file
+** DONE Decide whether to write to a buffer or to a temporary file
    :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-13 Tue 15:20]
    CLOCK: [2009-10-07 Wed 14:41]--[2009-10-07 Wed 15:00] =>  0:19
    :END:
    I don't know whether one can view e.g. images (.png) directly
    in an emacs buffer. To my knowledge only temporary files are
-   treated according to auto-mode-alist. Maybe I should decide
+   treated according to auto-mode-alist. In branch savefile I
+   will use temporary files, which are then opened with org-open-file.
    later and first go with the temorary buffer route.
