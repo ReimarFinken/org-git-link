@@ -72,5 +72,5 @@
         (org-git-show gitdir object buffer)
         (buffer-string)))))
 
-(expectations-execute)
+;; (expectations-execute)                 ;  use C-M-x on expectations sexp instead
 

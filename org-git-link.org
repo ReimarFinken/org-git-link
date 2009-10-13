@@ -336,6 +336,12 @@ git show master~4:doc/ChangeLog
    shell just to call git. Let's try =call-process=, see
    [[info:elisp:Synchronous%20Processes][info:elisp:Synchronous Processes]].
 
+** DONE write test script executable from the shell
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-13 Tue 16:46]
+   CLOCK: [2009-10-13 Tue 16:35]--[2009-10-13 Tue 16:46] =>  0:11
+   :END:
+   
 ** DONE Specify link syntax
    :LOGBOOK:
    - State "DONE"       from "STARTED"    [2009-10-07 Wed 14:40]
