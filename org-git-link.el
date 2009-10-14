@@ -33,25 +33,55 @@
 ;; org link functions 
 ;; bare git link
 (org-add-link-type "gitbare" 'org-gitbare-open)
+
 (defun org-gitbare-open (str)
   (let* ((strlist (org-git-split-string str))
          (gitdir (first strlist))
-         (object (second strlist))
-         (tmpdir (make-temp-file "org-git" t))
+         (object (second strlist)))
+    (org-git-open-file-internal gitdir object)))
+
+(defun org-git-open-file-internal (gitdir object)
+  (let* ((tmpdir (make-temp-file "org-git" t))
          (filename (org-git-link-filename object))
          (tmpfile (expand-file-name filename tmpdir)))
     (with-temp-file tmpfile 
       (org-git-show gitdir object (current-buffer)))
     (org-open-file tmpfile)))
 
-
 ;; user friendly link
 (org-add-link-type "git" 'org-git-open)
-
-;; extracting the search string
+(defun org-git-open (str)
+  (let* ((strlist (org-git-split-string str))
+         (filepath (first strlist))
+         (commit (second strlist))
+         (dirlist (org-git-find-gitdir filepath))
+         (gitdir (first dirlist))
+         (relpath (second dirlist)))
+    (org-git-open-file-internal gitdir (concat commit ":" relpath))))
 
 
 ;; Utility functions (file names etc)
+
+(defun org-git-split-dirpath (dirpath)
+  "Given a directory name, return '(dirname basname)"
+  (let ((dirname (file-name-directory (directory-file-name dirpath)))
+        (basename (file-name-nondirectory (directory-file-name dirpath))))
+    (list dirname basename)))
+
+;; finding the git directory
+(defun org-git-find-gitdir (path)
+  "Given a file (not necessarily existing) file path, return the
+  a pair (gitdir relpath), where gitdir is the path to the first
+  .git subdirectory found updstream and relpath is the rest of
+  the path. Example: (org-git-find-gitdir
+  \"~/gitrepos/foo/bar.txt\") returns '(\"/home/user/gitrepos/.git\" \"foo/bar.txt\")"
+  (let ((dir (file-name-directory path))
+        (relpath (file-name-nondirectory path)))
+    (while (not (file-exists-p (expand-file-name ".git" dir)))
+      (let ((dirlist (org-git-split-dirpath dir)))
+        (setq dir (first dirlist)
+              relpath (concat (file-name-as-directory (second dirlist)) relpath))))
+    (list (expand-file-name ".git" dir) relpath)))
 
 ;; splitting the link string 
 
@@ -59,8 +89,13 @@
 ;; consisting of two parts separated by a double colon (::).
 (defun org-git-split-string (str)
   "Given a string of the form \"str1::str2\", return a list of
-  two substrings \'(\"str1\" \"str2\")" 
-  (split-string str "::"))
+  two substrings \'(\"str1\" \"str2\"). If the double colon is mising, take str2 to be the empty string." 
+  (let ((strlist (split-string str "::")))
+    (cond ((= 1 (length strlist))
+           (list (car strlist) ""))
+          ((= 2 (length strlist))
+           strlist)
+          (t (error "org-git-split-string: only one :: allowed: %s" str)))))
 
 ;; finding the file name part of a commit
 (defun org-git-link-filename (str)

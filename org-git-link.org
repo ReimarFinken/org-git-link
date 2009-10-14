@@ -292,6 +292,7 @@ git show master~4:doc/ChangeLog
 * Sandbox:
   [[gitbare:.git::deletebaztxt:test/testgitrepos/b.txt]]
   [[gitbare:.git:::test/testgitrepos/unicorn.png]]
+  [[git:test/testgitrepos/unicorn.png::]]
 * Tasks:
 ** DONE Check out man pages of git-rev-parse 
    :LOGBOOK:
@@ -449,16 +450,34 @@ git show master~4:doc/ChangeLog
    - State "DONE"       from "STARTED"    [2009-10-13 Tue 17:21]
    CLOCK: [2009-10-13 Tue 17:14]--[2009-10-13 Tue 17:21] =>  0:07
    :END:
-** Implement git link                                          :PROJECT:
-*** TODO refactor existing code so that git link can call gitbare link infrastructure
+** DONE Implement git link                                          :PROJECT:
+   :LOGBOOK:
+   - Note taken on [2009-10-14 Wed 17:21] \\
+     branch gitlink
+   - State "DONE"       from ""           [2009-10-14 Wed 17:20]
+   :END:
+*** DONE write git link function
+    :LOGBOOK:
+    - State "DONE"       from "STARTED"    [2009-10-14 Wed 17:20]
+    CLOCK: [2009-10-14 Wed 17:15]--[2009-10-14 Wed 17:20] =>  0:05
+    CLOCK: [2009-10-14 Wed 16:09]--[2009-10-14 Wed 16:50] =>  0:41
+    :END:
+*** DONE refactor existing code so that git link can call gitbare link infrastructure
+    :LOGBOOK:
+    - State "DONE"       from "STARTED"    [2009-10-14 Wed 16:09]
+    - Note taken on [2009-10-14 Wed 16:09] \\
+      using org-git-open-file-internal
+    CLOCK: [2009-10-14 Wed 16:04]--[2009-10-14 Wed 16:09] =>  0:05
+    :END:
 *** DONE write helper function to split dir path into parent dir and rest
     :LOGBOOK:
     - State "DONE"       from "STARTED"    [2009-10-14 Wed 15:42]
     CLOCK: [2009-10-14 Wed 15:25]--[2009-10-14 Wed 15:42] =>  0:17
     CLOCK: [2009-10-14 Wed 14:27]--[2009-10-14 Wed 14:55] =>  0:28
     :END:
-*** STARTED write function which finds git-dir
+*** DONE write function which finds git-dir
      :LOGBOOK:
+     - State "DONE"       from "STARTED"    [2009-10-14 Wed 15:59]
      CLOCK: [2009-10-13 Tue 17:22]--[2009-10-13 Tue 18:10] =>  0:48
      :END:
 ** TODO Find way not not load identical files multiple times
