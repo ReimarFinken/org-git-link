@@ -53,6 +53,27 @@
 
 ;; Utility functions (file names etc)
 
+(defun org-git-split-dirpath (dirpath)
+  "Given a directory name, return '(dirname basname)"
+  (let ((dirname (file-name-directory (directory-file-name dirpath)))
+        (basename (file-name-nondirectory (directory-file-name dirpath))))
+    (list dirname basename)))
+
+;; finding the git directory
+(defun org-git-find-gitdir (path)
+  "Given a file (not necessarily existing) file path, return the
+  a pair (gitdir relpath), where gitdir is the path to the first
+  .git subdirectory found updstream and relpath is the rest of
+  the path. Example: (org-git-find-gitdir
+  \"~/gitrepos/foo/bar.txt\") returns '(\"/home/user/gitrepos/.git\" \"foo/bar.txt\")"
+  (let ((dir (file-name-directory path))
+        (relpath (file-name-nondirectory path)))
+    (while (not (file-exists-p (expand-file-name ".git" dir)))
+      (let ((dirlist (org-git-split-dirpath dir)))
+        (setq dir (first dirlist)
+              relpath (concat (file-name-as-directory (second dirlist)) relpath))))
+    (list (expand-file-name ".git" dir) relpath)))
+
 ;; splitting the link string 
 
 ;; Both link open functions are called with a string of

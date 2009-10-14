@@ -36,7 +36,7 @@
     (org-open-link-from-string (concat "[[gitbare:" gitdir "::foobarbaztxt:test/testgitrepos/foo/bar/baz.txt]]"))
     (set-buffer "baz.txt")
     (buffer-string))
-  ;; testing whether two links only loads file once
+  (desc "testing whether two links only loads file once")
   (expect "a\n"
     (org-open-link-from-string (concat "[[gitbare:" gitdir "::firstlevelfiles:test/testgitrepos/a.txt]]"))
     (org-open-link-from-string (concat "[[gitbare:" gitdir "::firstlevelfiles:test/testgitrepos/a.txt]]"))
@@ -45,13 +45,20 @@
   (desc "Utility functions")
   (expect '("str1" "str2")
     (org-git-split-string "str1::str2"))
-  ;; extraction of file names
+  (desc "extraction of file names")
   (expect "foo.org"
     (org-git-link-filename "firstlevelfiles:test/foo.org"))
   (expect "foo.org"
     (org-git-link-filename ":test/foo.org"))
   (expect "78981922613"
     (org-git-link-filename "78981922613")) ; a.txt
+  (desc "finding git directory")
+  (expect '("/foo/bar/" "baz")
+          (org-git-split-dirpath "/foo/bar/baz/"))
+  (expect `(,gitdir "test/testgitrepos/a.txt")
+          (org-git-find-gitdir (expand-file-name "testgitrepos/a.txt" git-test-src-dir)))
+  (expect `(,gitdir "test/testgitrepos/foo/bar/baz.txt")
+          (org-git-find-gitdir (expand-file-name "testgitrepos/foo/bar/baz.txt" git-test-src-dir)))
   (desc "Git functions")
   (expect "a\n" 
     (with-temp-buffer
