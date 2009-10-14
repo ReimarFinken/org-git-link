@@ -42,11 +42,14 @@
 
 
 (defun org-git-open-file-internal (gitdir object)
-  (let* ((tmpdir (make-temp-file "org-git" t))
+  (let* ((sha (org-git-blob-sha gitdir object))
+         (tmpdir (concat temporary-file-directory "org-git-" sha))
          (filename (org-git-link-filename object))
          (tmpfile (expand-file-name filename tmpdir)))
-    (with-temp-file tmpfile 
-      (org-git-show gitdir object (current-buffer)))
+    (unless (file-readable-p tmpfile)
+      (make-directory tmpdir)
+      (with-temp-file tmpfile 
+        (org-git-show gitdir object (current-buffer))))
     (org-open-file tmpfile)))
 
 ;; user friendly link
