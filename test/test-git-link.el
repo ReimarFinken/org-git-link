@@ -32,6 +32,7 @@
     (flet ((org-git-open (str)
                          (error str)))
       (org-open-link-from-string "[[git:~/foo/bar/baz.txt::brabranch]]")))
+  (desc "gitbare link")
   (expect "baz\n"
     (org-open-link-from-string (concat "[[gitbare:" gitdir "::foobarbaztxt:test/testgitrepos/foo/bar/baz.txt]]"))
     (set-buffer "baz.txt")
@@ -42,9 +43,26 @@
     (org-open-link-from-string (concat "[[gitbare:" gitdir "::firstlevelfiles:test/testgitrepos/a.txt]]"))
     (set-buffer "a.txt")
     (buffer-string))
+  (desc "git link")
+  (expect "baz\n"
+    (org-open-link-from-string (concat "[[git:" git-test-src-dir "testgitrepos/foo/bar/baz.txt::foobarbaztxt]]"))
+    (set-buffer "baz.txt")
+    (buffer-string))
+  (expect "b\n"
+    (org-open-link-from-string (concat "[[git:" git-test-src-dir "testgitrepos/b.txt]]"))
+    (set-buffer "b.txt")
+    (buffer-string))
+  (desc "testing whether two links only loads file once")
+  (expect "a\n"
+    (org-open-link-from-string (concat "[[git:" git-test-src-dir "testgitrepos/a.txt::firstlevelfiles]]"))
+    (org-open-link-from-string (concat "[[git:" git-test-src-dir "testgitrepos/a.txt::firstlevelfiles]]"))
+    (set-buffer "a.txt")
+    (buffer-string))
   (desc "Utility functions")
   (expect '("str1" "str2")
     (org-git-split-string "str1::str2"))
+  (expect '("str1" "")                  ;empty search string
+    (org-git-split-string "str1"))
   (desc "extraction of file names")
   (expect "foo.org"
     (org-git-link-filename "firstlevelfiles:test/foo.org"))
