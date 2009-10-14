@@ -451,7 +451,40 @@ git show master~4:doc/ChangeLog
    :END:
 ** Implement git link                                          :PROJECT:
 *** TODO refactor existing code so that git link can call gitbare link infrastructure
-*** TODO write function which finds git-dir
+*** DONE write helper function to split dir path into parent dir and rest
+    :LOGBOOK:
+    - State "DONE"       from "STARTED"    [2009-10-14 Wed 15:42]
+    CLOCK: [2009-10-14 Wed 15:25]--[2009-10-14 Wed 15:42] =>  0:17
+    CLOCK: [2009-10-14 Wed 14:27]--[2009-10-14 Wed 14:55] =>  0:28
+    :END:
+*** STARTED write function which finds git-dir
+     :LOGBOOK:
+     CLOCK: [2009-10-13 Tue 17:22]--[2009-10-13 Tue 18:10] =>  0:48
+     :END:
+** TODO Find way not not load identical files multiple times
+   At the moment, following the same link multiple times
+   generates a new temp directory and opens a new copy of the
+   file. However, we cannot simply check for an existing buffer
+   with the filename, since one important usecase is to open two
+   versions of the same file. One could presumably make a hash of
+   the file link, so that identical links are only opened once.
+   One would still open separate copies of the same files found
+   by different link types, though. The right way to do things
+   would be to check whether the sha1 of the blob objects are the
+   same. Here is one idea: Somehow find a way to get the sha1 of
+   the corresponding blob, then use that to construct the temp
+   dir. 
+*** DONE Find out how to extract the sha1 of the blob for a given object reference
+    :LOGBOOK:
+    - State "DONE"       from "TODO"       [2009-10-14 Wed 14:26]
+    :END:
+    git-rev-parse does this job:
+#+begin_example
+The git-rev-parse(1) command is a low-level command that is occasionally useful for translating some name for a commit to the object name for that commit:
+
+$git rev-parseorigin
+e05db0fd4f31dde7005f075a84f96b360d05984b
+#+end_example
 ** TODO decide how to display commits
    :LOGBOOK:
    - Note taken on [2009-10-13 Tue 15:19] \\
