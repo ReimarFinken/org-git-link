@@ -480,7 +480,11 @@ git show master~4:doc/ChangeLog
      - State "DONE"       from "STARTED"    [2009-10-14 Wed 15:59]
      CLOCK: [2009-10-13 Tue 17:22]--[2009-10-13 Tue 18:10] =>  0:48
      :END:
-** TODO Find way not not load identical files multiple times
+** Find way not not load identical files multiple times             :PROJECT:
+   :LOGBOOK:
+   - Note taken on [2009-10-14 Wed 17:32] \\
+     branch uniquelink
+   :END:
    At the moment, following the same link multiple times
    generates a new temp directory and opens a new copy of the
    file. However, we cannot simply check for an existing buffer
@@ -493,6 +497,38 @@ git show master~4:doc/ChangeLog
    same. Here is one idea: Somehow find a way to get the sha1 of
    the corresponding blob, then use that to construct the temp
    dir. 
+*** DONE Find reliable test that no file is opened more than once
+    :LOGBOOK:
+    - State "DONE"       from "TODO"       [2009-10-14 Wed 22:07]
+    :END:
+*** TODO Make files read-only
+    Although this might clash with org-mode
+*** DONE change org-git-open-file-internal to reuse existing files
+    :LOGBOOK:
+    - State "DONE"       from "STARTED"    [2009-10-14 Wed 18:02]
+    CLOCK: [2009-10-14 Wed 17:54]--[2009-10-14 Wed 18:02] =>  0:08
+    CLOCK: [2009-10-14 Wed 17:40]--[2009-10-14 Wed 17:53] =>  0:13
+    :END:
+*** DONE Find out how to check for existing files or dirs 
+    :LOGBOOK:
+    - State "DONE"       from "STARTED"    [2009-10-14 Wed 17:40]
+    CLOCK: [2009-10-14 Wed 17:37]--[2009-10-14 Wed 17:40] =>  0:03
+    :END:
+#+begin_example 
+ -- Function: file-accessible-directory-p dirname
+     This function returns `t' if you have permission to open existing
+     files in the directory whose name as a file is DIRNAME; otherwise
+     (or if there is no such directory), it returns `nil'.  The value
+     of DIRNAME may be either a directory name (such as `/foo/') or the
+     file name of a file which is a directory (such as `/foo', without
+     the final slash).
+#+end_example
+*** DONE Find out how to construct a temp directory with a given name
+    :LOGBOOK:
+    - State "DONE"       from "STARTED"    [2009-10-14 Wed 17:36]
+    CLOCK: [2009-10-14 Wed 17:34]--[2009-10-14 Wed 17:36] =>  0:02
+    :END:
+    Temp dir is stored in variable =temporary-file-directory=
 *** DONE Find out how to extract the sha1 of the blob for a given object reference
     :LOGBOOK:
     - State "DONE"       from "TODO"       [2009-10-14 Wed 14:26]

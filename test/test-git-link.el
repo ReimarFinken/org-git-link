@@ -1,6 +1,6 @@
 
 ;; test-git-link.el -- test ../org-git-link.el
-(require 'cl)                           ;for flet
+(require 'cl)                           ;for flet and loop
 
 ;;; stolen from cedet test suite
 (defvar git-test-src-dir
@@ -19,6 +19,11 @@
 
 (setq inhibit-splash-screen t)		; for batch mode
 
+(defun git-test-count-buffers (filename)
+  "Returns the number of buffers visiting a certain filename."
+  (loop for buf in (buffer-list)
+      for file = (buffer-file-name buf)
+      count (and file (string= filename (file-name-nondirectory file)))))
 
 ;; test org link types
 ;; org-open-link always returns nil, we therefore need to test the side effects. We do this by throwing the string and 
@@ -58,6 +63,10 @@
     (org-open-link-from-string (concat "[[git:" git-test-src-dir "testgitrepos/a.txt::firstlevelfiles]]"))
     (set-buffer "a.txt")
     (buffer-string))
+  (expect 1
+    (org-open-link-from-string (concat "[[git:" git-test-src-dir "testgitrepos/a.txt::firstlevelfiles]]"))
+    (org-open-link-from-string (concat "[[git:" git-test-src-dir "testgitrepos/a.txt::foobarbaztxt]]"))
+    (git-test-count-buffers "a.txt"))
   (desc "Utility functions")
   (expect '("str1" "str2")
     (org-git-split-string "str1::str2"))
