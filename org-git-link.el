@@ -50,7 +50,9 @@
       (make-directory tmpdir)
       (with-temp-file tmpfile 
         (org-git-show gitdir object (current-buffer))))
-    (org-open-file tmpfile)))
+    (org-open-file tmpfile)
+    (set-buffer (get-file-buffer tmpfile))
+    (setq buffer-read-only t)))
 
 ;; user friendly link
 (org-add-link-type "git" 'org-git-open)

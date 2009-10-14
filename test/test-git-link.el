@@ -42,6 +42,10 @@
     (org-open-link-from-string (concat "[[gitbare:" gitdir "::foobarbaztxt:test/testgitrepos/foo/bar/baz.txt]]"))
     (set-buffer "baz.txt")
     (buffer-string))
+  (expect t
+    (org-open-link-from-string (concat "[[gitbare:" gitdir "::foobarbaztxt:test/testgitrepos/foo/bar/baz.txt]]"))
+    (set-buffer "baz.txt")
+    buffer-read-only)
   (desc "testing whether two links only loads file once")
   (expect "a\n"
     (org-open-link-from-string (concat "[[gitbare:" gitdir "::firstlevelfiles:test/testgitrepos/a.txt]]"))
