@@ -40,6 +40,7 @@
          (object (second strlist)))
     (org-git-open-file-internal gitdir object)))
 
+
 (defun org-git-open-file-internal (gitdir object)
   (let* ((tmpdir (make-temp-file "org-git" t))
          (filename (org-git-link-filename object))
@@ -112,10 +113,18 @@
 (defun org-git-show (gitdir object buffer)
   "Show the output of git --git-dir=gidir show object in buffer."
   (unless 
-      (zerop (call-process org-git-program nil buffer t
+      (zerop (call-process org-git-program nil buffer nil
                            "--no-pager" (concat "--git-dir=" gitdir) "show" object))
     (error "git error: %s " (save-excursion (set-buffer buffer) 
                                             (buffer-string)))))
+
+(defun org-git-blob-sha (gidir object)
+  "Return sha of the referenced object"
+    (with-temp-buffer 
+      (if (zerop (call-process org-git-program nil t nil
+                               "--no-pager" (concat "--git-dir=" gitdir) "rev-parse" object))
+          (buffer-substring (point-min) (1- (point-max))) ; to strip off final newline
+        (error "git error: %s " (buffer-string)))))
 
 (provide 'org-git-link)
 ;;; org-git-link.el ends here

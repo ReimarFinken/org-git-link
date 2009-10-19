@@ -95,7 +95,9 @@
       (let ((object "deletebaztxt:test/testgitrepos/foo/bar/baz.txt") 
             (buffer (current-buffer))) 
         (org-git-show gitdir object buffer)
-        (buffer-string)))))
+        (buffer-string))))
+  (expect "78981922613b2afb6025042ff6bd878ac1994e85"
+    (org-git-blob-sha gitdir "firstlevelfiles:test/testgitrepos/a.txt")))
 
 ;; (expectations-execute)                 ;  use C-M-x on expectations sexp instead
 
