@@ -1,5 +1,6 @@
-* STARTED Create git link type                                      :PROJECT:
+* DONE Create git link type                                         :PROJECT:
    :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-15 Thu 12:21]
    CLOCK: [2009-10-01 Thu 17:20]--[2009-10-01 Thu 18:05] =>  0:45
    - Note taken on [2009-09-24 Thu 18:09] \\
      We also need to specify a method how to access the file: Either
@@ -293,6 +294,7 @@ git show master~4:doc/ChangeLog
   [[gitbare:.git::deletebaztxt:test/testgitrepos/b.txt]]
   [[gitbare:.git:::test/testgitrepos/unicorn.png]]
   [[git:test/testgitrepos/unicorn.png::]]
+  [[gitbare:.git:::/Add]]
 * Tasks:
 ** DONE Check out man pages of git-rev-parse 
    :LOGBOOK:
@@ -544,10 +546,20 @@ The git-rev-parse(1) command is a low-level command that is occasionally useful 
 $git rev-parseorigin
 e05db0fd4f31dde7005f075a84f96b360d05984b
 #+end_example
-** TODO decide how to display commits
+** DONE decide how to display commits
    :LOGBOOK:
+   - State "DONE"       from "TODO"       [2009-10-19 Mon 15:53]
    - Note taken on [2009-10-13 Tue 15:19] \\
      in a separate branch
    :END:
-** TODO Decide whether we need special export treatment
-   See =export= argument in =org-add-link-type=
+   We don't do anything special. Git links are only meant for
+   files. At the moment it simply shows the commit message and
+   the corresponding diff in a text file.
+** DONE Decide whether we need special export treatment
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2009-10-19 Mon 16:03]
+   :END:
+   See =export= argument in =org-add-link-type=. The right thing
+   to do would be to checkout the particular file (as we already
+   do) and export it. I might implement this later if somebody
+   needs it.
