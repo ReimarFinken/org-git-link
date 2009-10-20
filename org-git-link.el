@@ -20,7 +20,42 @@
 
 ;;; Commentary:
 
-;; 
+;; `org-git-link.el' defines two new link types. The `git' link
+;; type is meant to be used in the typical scenario and mimics the
+;; `file' link syntax as closely as possible. The `gitbare' link
+;; type exists mostly for debugging reasons, but also allows e.g.
+;; linking to files in a bare git repository for the experts. 
+
+;; * User friendy form 
+;;   [[git:/path/to/file::searchstring]]
+  
+;;   This form is the familiar from normal org file links
+;;   including search options. However, its use is
+;;   restricted to files in a working directory and does not
+;;   handle bare repositories on purpose (see the bare form for
+;;   that).
+  
+;;   The search string references a commit (a tree-ish in Git
+;;   terminology). The two most useful types of search strings are
+  
+;;   - A symbolic ref name, usually a branch or tag name (e.g.
+;;     master or nobelprize).
+;;   - A ref followed by the suffix @ with a date specification
+;;     enclosed in a brace pair (e.g. {yesterday}, {1 month 2
+;;     weeks 3 days 1 hour 1 second ago} or {1979-02-26 18:30:00})
+;;     to specify the value of the ref at a prior point in time
+;;
+;; * Bare git form 
+;;   [[gitbare:$GIT_DIR::$OBJECT]]
+;;
+;;    This is the more bare metal version, which gives the user most
+;;    control. It directly translates to the git command
+;;    git --no-pager --git-dir=$GIT_DIR show $OBJECT
+;;    Using this version one can also view files from a bare git
+;;    repository. For detailed information on how to specify an
+;;    object, see the man page of `git-rev-parse' (section
+;;    SPECIFYING REVISIONS). A specific blob (file) can be
+;;    specified by a suffix clolon (:) followed by a path.
 
 ;;; Code:
 

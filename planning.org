@@ -1,0 +1,487 @@
+* References
+** Testing whether git directory is valid
+   Valid git directory can be tested with git-rev-parse
+   --git-dir=...
+   other scripts simply test for the existence of .git / the name
+   ending in .git
+** Structure of the test git directory
+   =testgitrepos= is a normal subdirectory of the source
+   directory under git control. The following states have been
+   tagged:
+
+   - firstlevelfiles :: a.txt, b.txt, c.txt with contents a, b, c
+        in testgitrepos directory
+
+   - foobarbaztxt :: add foo/bar/baz.txt with contents baz
+
+   - deletebaztxt :: removed foo/bar/baz.txt
+
+   - unicorn :: A picture of a unicorn has been added to test
+                links to non-text files.
+
+** Creating a Link type in org mode
+   See [[info:org:Adding%20hyperlink%20types][info:org:Adding hyperlink types]] and
+#+begin_EXAMPLE 
+org-add-link-type is a compiled Lisp function in `org.el'.
+
+(org-add-link-type type &optional follow export)
+
+Add type to the list of `org-link-types'.
+Re-compute all regular expressions depending on `org-link-types'
+
+follow and export are two functions.
+
+follow should take the link path as the single argument and do whatever
+is necessary to follow the link, for example find a file or display
+a mail message.
+
+export should format the link path for export to one of the export formats.
+It should be a function accepting three arguments:
+
+  path    the path of the link, the text after the prefix (like "http:")
+  desc    the description of the link, if any, nil if there was no description
+  format  the export format, a symbol like `html' or `latex'.
+
+The function may use the FORMAT information to return different values
+depending on the format.  The return value will be put literally into
+the exported file.
+Org-mode has a built-in default for exporting links.  If you are happy with
+this default, there is no need to define an export function for the link
+type.  For a simple example of an export function, see `org-bbdb.el'.
+#+end_EXAMPLE
+** Specifying objects
+    :PROPERTIES:
+    :ID:       83573d86-8df3-4f56-9927-a917e4b62509
+    :END:
+    From the man page of git-rev-parse:
+#+BEGIN_EXAMPLE 
+SPECIFYING REVISIONS
+       A revision parameter typically, but not necessarily, names a commit
+       object. They use what is called an extended SHA1 syntax. Here are
+       various ways to spell object names. The ones listed near the end of
+       this list are to name trees and blobs contained in a commit.
+
+       ·   The full SHA1 object name (40-byte hexadecimal string), or a
+           substring of such that is unique within the repository. E.g.
+           dae86e1950b1277e545cee180551750029cfe735 and dae86e both name the
+           same commit object if there are no other object in your repository
+           whose object name starts with dae86e.
+
+       ·   An output from git-describe; i.e. a closest tag, optionally
+           followed by a dash and a number of commits, followed by a dash, a
+           g, and an abbreviated object name.
+
+       ·   A symbolic ref name. E.g. master typically means the commit object
+           referenced by $GIT_DIR/refs/heads/master. If you happen to have
+           both heads/master and tags/master, you can explicitly say
+           heads/master to tell git which one you mean. When ambiguous, a
+           <name> is disambiguated by taking the first match in the following
+           rules:
+
+            1.  if $GIT_DIR/<name> exists, that is what you mean (this is
+               usually useful only for HEAD, FETCH_HEAD, ORIG_HEAD and
+               MERGE_HEAD);
+
+            2.  otherwise, $GIT_DIR/refs/<name> if exists;
+
+            3.  otherwise, $GIT_DIR/refs/tags/<name> if exists;
+
+            4.  otherwise, $GIT_DIR/refs/heads/<name> if exists;
+
+            5.  otherwise, $GIT_DIR/refs/remotes/<name> if exists;
+
+            6.  otherwise, $GIT_DIR/refs/remotes/<name>/HEAD if exists.
+
+               HEAD names the commit your changes in the working tree is based
+               on. FETCH_HEAD records the branch you fetched from a remote
+               repository with your last git-fetch invocation. ORIG_HEAD is
+               created by commands that moves your HEAD in a drastic way, to
+               record the position of the HEAD before their operation, so that
+               you can change the tip of the branch back to the state before
+               you ran them easily. MERGE_HEAD records the commit(s) you are
+               merging into your branch when you run git-merge.
+
+       ·   A ref followed by the suffix @ with a date specification enclosed
+           in a brace pair (e.g. {yesterday}, {1 month 2 weeks 3 days 1 hour 1
+           second ago} or {1979-02-26 18:30:00}) to specify the value of the
+           ref at a prior point in time. This suffix may only be used
+           immediately following a ref name and the ref must have an existing
+           log ($GIT_DIR/logs/<ref>). Note that this looks up the state of
+           your local ref at a given time; e.g., what was in your local master
+           branch last week. If you want to look at commits made during
+           certain times, see --since and --until.
+
+       ·   A ref followed by the suffix @ with an ordinal specification
+           enclosed in a brace pair (e.g. {1}, {15}) to specify the n-th prior
+           value of that ref. For example master@{1} is the immediate prior
+           value of master while master@{5} is the 5th prior value of master.
+           This suffix may only be used immediately following a ref name and
+           the ref must have an existing log ($GIT_DIR/logs/<ref>).
+
+       ·   You can use the @ construct with an empty ref part to get at a
+           reflog of the current branch. For example, if you are on the branch
+           blabla, then @{1} means the same as blabla@{1}.
+
+       ·   A suffix ^ to a revision parameter means the first parent of that
+           commit object. ^<n> means the <n>th parent (i.e. rev^ is equivalent
+           to rev^1). As a special rule, rev^0 means the commit itself and is
+           used when rev is the object name of a tag object that refers to a
+           commit object.
+
+       ·   A suffix ~<n> to a revision parameter means the commit object that
+           is the <n>th generation grand-parent of the named commit object,
+           following only the first parent. I.e. rev~3 is equivalent to rev^^^
+           which is equivalent to rev^1^1^1. See below for a illustration of
+           the usage of this form.
+
+       ·   A suffix ^ followed by an object type name enclosed in brace pair
+           (e.g. v0.99.8^{commit}) means the object could be a tag, and
+           dereference the tag recursively until an object of that type is
+           found or the object cannot be dereferenced anymore (in which case,
+           barf). rev^0 introduced earlier is a short-hand for rev^{commit}.
+
+       ·   A suffix ^ followed by an empty brace pair (e.g. v0.99.8^{}) means
+           the object could be a tag, and dereference the tag recursively
+           until a non-tag object is found.
+
+       ·   A colon, followed by a slash, followed by a text: this names a
+           commit whose commit message starts with the specified text. This
+           name returns the youngest matching commit which is reachable from
+           any ref. If the commit message starts with a !, you have to repeat
+           that; the special sequence :/!, followed by something else than !
+           is reserved for now.
+
+       ·   A suffix : followed by a path; this names the blob or tree at the
+           given path in the tree-ish object named by the part before the
+           colon.
+
+       ·   A colon, optionally followed by a stage number (0 to 3) and a
+           colon, followed by a path; this names a blob object in the index at
+           the given path. Missing stage number (and the colon that follows
+           it) names a stage 0 entry. During a merge, stage 1 is the common
+           ancestor, stage 2 is the target branch´s version (typically the
+           current branch), and stage 3 is the version from the branch being
+           merged.
+       Here is an illustration, by Jon Loeliger. Both commit nodes B and C are
+       parents of commit node A. Parent commits are ordered left-to-right.
+
+           G   H   I   J
+            \ /     \ /
+             D   E   F
+              \  |  / \
+               \ | /   |
+                \|/    |
+                 B     C
+                  \   /
+                   \ /
+                    A
+
+           A =      = A^0
+           B = A^   = A^1     = A~1
+           C = A^2  = A^2
+           D = A^^  = A^1^1   = A~2
+           E = B^2  = A^^2
+           F = B^3  = A^^3
+           G = A^^^ = A^1^1^1 = A~3
+           H = D^2  = B^^2    = A^^^2  = A~2^2
+           I = F^   = B^3^    = A^^3^
+           J = F^2  = B^3^2   = A^^3^2
+#+END_EXAMPLE
+** Viewing a specific version of a file in git:
+    From the [[http://git.or.cz/gitwiki/GitFaq#Howtoviewanoldrevisionofafileordirectory.3F][Git FAQ]]:
+#+begin_EXAMPLE 
+How to view an old revision of a file or directory?
+
+Use command "git show" with a colon and filename:
+
+git show <commit>:path/file
+
+The <commit> can be commit id, branch name, tag, relative pointer
+like HEAD~2 etc. If you don't give any path or file (i.e. just
+<commit>:), git will display the file listing of repository's
+root directory. Examples:
+
+git show v1.4.3:git.c
+git show f5f75c652b9c2347522159a87297820103e593e4:git.c
+git show HEAD~2:git.c
+git show master~4:
+git show master~4:doc/
+git show master~4:doc/ChangeLog
+#+end_EXAMPLE
+* Implementation
+  - [[file:org-git-link.el][Source file]]
+  - [[file:test/test-git-link.el][Test file]]
+* Sandbox:
+  [[gitbare:.git::deletebaztxt:test/testgitrepos/b.txt]]
+  [[gitbare:.git:::test/testgitrepos/unicorn.png][unicorn]]
+  [[git:test/testgitrepos/unicorn.png::]]
+  [[gitbare:.git:::/Add]]
+  [[git:org-git-link.org::master@{3.10.2009}]]
+* Tasks:
+** DONE Check out man pages of git-rev-parse 
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-07-24 Fri 17:08]
+   CLOCK: [2009-07-24 Fri 16:55]--[2009-07-24 Fri 17:08] =>  0:13
+   :END:
+   Find out the possibilities to specify a file in a specific
+   branch and version. See [[id:83573d86-8df3-4f56-9927-a917e4b62509][Specifying objects]].
+** DONE Check whether attachments care about commits
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-07-24 Fri 15:56]
+   CLOCK: [2009-07-24 Fri 15:54]--[2009-07-24 Fri 15:56] =>  0:02
+   :END:
+   No they don't. (Only creating their own commits). No help
+   from there.
+** DONE Find out how to create new link types 
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-07-24 Fri 15:54]
+   CLOCK: [2009-07-24 Fri 15:46]--[2009-07-24 Fri 15:54] =>  0:08
+   :END:
+   See [[info:org:Adding%20hyperlink%20types][info:org:Adding hyperlink types]]
+** DONE Find a way to get the specific xxx file mentioned above
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-07-24 Fri 15:45]
+   CLOCK: [2009-07-24 Fri 15:30]--[2009-07-24 Fri 15:45] =>  0:15
+   :END:
+   =git show xxxantwort:xxx-antrag.tex= does the trick.
+** DONE find out how to fill buffer with result of shell process     :ATTACH:
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-05 Mon 17:35]
+   CLOCK: [2009-10-05 Mon 17:28]--[2009-10-05 Mon 17:35] =>  0:07
+   CLOCK: [2009-10-01 Thu 16:30]--[2009-10-01 Thu 17:07] =>  0:37
+   CLOCK: [2009-07-24 Fri 16:24]--[2009-07-24 Fri 17:03] =>  0:39
+   CLOCK: [2009-07-24 Fri 15:58]--[2009-07-24 Fri 16:20] =>  0:22
+   :END:
+   :PROPERTIES:
+   :Attachments: simple.el man.el org-git.el
+   :ID:       19e759de-ea08-4848-9799-1303a5cc078f
+   :END:
+   Looking at simple.el (shell-command-on-region) and man.el
+   (man) to find out how to call shell processes. Synchronous
+   calling ist simpler. shell-command should simply work, though.
+   I will simply use shell-command or call-process. Don't know
+   whether we need a shell. Actually, I don't need to spawn a
+   shell just to call git. Let's try =call-process=, see
+   [[info:elisp:Synchronous%20Processes][info:elisp:Synchronous Processes]].
+
+** DONE write test script executable from the shell
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-13 Tue 16:46]
+   CLOCK: [2009-10-13 Tue 16:35]--[2009-10-13 Tue 16:46] =>  0:11
+   :END:
+   
+** DONE Specify link syntax
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-07 Wed 14:40]
+   - State "STARTED"    from "DONE"       [2009-10-07 Wed 14:24]
+   CLOCK: [2009-10-07 Wed 14:24]--[2009-10-07 Wed 14:40] =>  0:16
+   - State "DONE"       from "STARTED"    [2009-10-05 Mon 17:03]
+   CLOCK: [2009-10-05 Mon 16:30]--[2009-10-05 Mon 17:03] =>  0:33
+   :END:
+** DONE find out how to create a new link type in org-mode
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2009-10-05 Mon 17:35]
+   :END:
+   :PROPERTIES:
+   :ID:       be9f8577-3e78-49c6-925c-090adc403fc6
+   :END:
+** DONE write test file in org-mode                                 :PROJECT:
+   :LOGBOOK:
+   - State "DONE"       from ""           [2009-10-13 Tue 17:09]
+   - Note taken on [2009-10-06 Tue 18:07] \\
+     First, we need to define the actual structure of the git link
+     file and  test file
+   :END:
+*** DONE plan structure of git link and test file
+    - Note taken on [2009-10-10 Sat 00:49] \\
+      test is still failing because two subsequent links append to the buffer rather than delete first.
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-06 Tue 18:05]
+   CLOCK: [2009-10-06 Tue 17:43]--[2009-10-06 Tue 18:04] =>  0:21
+   CLOCK: [2009-10-05 Mon 17:51]--[2009-10-05 Mon 18:04] =>  0:13
+   :END:
+*** DONE implement bare git type
+    :LOGBOOK:
+    CLOCK: [2009-10-09 Fri 16:40]--[2009-10-09 Fri 17:46] =>  1:06
+    CLOCK: [2009-10-09 Fri 15:35]--[2009-10-09 Fri 15:37] =>  0:02
+    :END:
+** DONE rewrite org-git-show link to use org-open-file
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-13 Tue 16:30]
+   CLOCK: [2009-10-13 Tue 15:24]--[2009-10-13 Tue 16:30] =>  1:06
+   - Note taken on [2009-10-12 Mon 16:59] \\
+     branch savefile
+   :END:
+   This is so that external apps and internal image viewers are
+   automatically called. We need a new specification for
+   org-git-show and need to find a way to extract a filename from
+   the commit (I think it is safe to restrict ourselves to file
+   links). Unfortunately org-open-at-point does not return the
+   buffer of the visited file (well it cannot, since it might be
+   displayed in an external program). 
+** DONE find way to extract filename from commit part
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-13 Tue 15:18]
+   - State "STARTED"    from "DONE"       [2009-10-13 Tue 15:13]
+   CLOCK: [2009-10-13 Tue 15:13]--[2009-10-13 Tue 15:18] =>  0:05
+   - State "DONE"       from "STARTED"    [2009-10-12 Mon 17:50]
+   CLOCK: [2009-10-12 Mon 17:32]--[2009-10-12 Mon 17:50] =>  0:18
+   :END:
+   - links to diffs (commits) might be useful too. Let's see how
+     magit handles these. At the moment we focus on file names
+   - symbolic ref names are probably of no use for permanent
+     storage. We can ignore those (but can also use HEAD etc. as
+     file names). They are part of the ref before the path anyway
+   - [X] if the commit part is simply a sha1, we have no information.
+         We can just take the sha as filename
+   - [X] A special case of the above are commits specified by the
+     beginning of the commit-message (e.g. of the form =git
+     show :/Delete=). These are specified by a colon followed
+     immediately by a slash. In this case we can use the search
+     string as a filename.
+   - [X] For our most important case (suffix colon followed by a
+     path) we can simply extract the part after the colon and use 
+     (file-name-nondirectory "lewis/foo") on that
+   - [X] For a link to an index file in a merge (not very useful),
+     taking the file name of the part after the last colon should
+     again also work
+** DONE write test git directory
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-06 Tue 17:41]
+   CLOCK: [2009-10-06 Tue 17:22]
+   :END:
+** DONE rewriting history for private email address
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-09 Fri 16:39]
+   CLOCK: [2009-10-09 Fri 16:25]--[2009-10-09 Fri 16:39] =>  0:14
+   :END:
+: git filter-branch --env-filter '
+: export  GIT_AUTHOR_EMAIL="Reimar.Finken@gmx.de"
+: export  GIT_COMMITTER_EMAIL="Reimar.Finken@gmx.de"
+: '
+** DONE Decide whether to write to a buffer or to a temporary file
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-13 Tue 15:20]
+   CLOCK: [2009-10-07 Wed 14:41]--[2009-10-07 Wed 15:00] =>  0:19
+   :END:
+   I don't know whether one can view e.g. images (.png) directly
+   in an emacs buffer. To my knowledge only temporary files are
+   treated according to auto-mode-alist. In branch savefile I
+   will use temporary files, which are then opened with org-open-file.
+   later and first go with the temorary buffer route.
+** DONE check whether viewing images also works
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-13 Tue 17:21]
+   CLOCK: [2009-10-13 Tue 17:14]--[2009-10-13 Tue 17:21] =>  0:07
+   :END:
+** DONE Implement git link                                          :PROJECT:
+   :LOGBOOK:
+   - Note taken on [2009-10-14 Wed 17:21] \\
+     branch gitlink
+   - State "DONE"       from ""           [2009-10-14 Wed 17:20]
+   :END:
+*** DONE write git link function
+    :LOGBOOK:
+    - State "DONE"       from "STARTED"    [2009-10-14 Wed 17:20]
+    CLOCK: [2009-10-14 Wed 17:15]--[2009-10-14 Wed 17:20] =>  0:05
+    CLOCK: [2009-10-14 Wed 16:09]--[2009-10-14 Wed 16:50] =>  0:41
+    :END:
+*** DONE refactor existing code so that git link can call gitbare link infrastructure
+    :LOGBOOK:
+    - State "DONE"       from "STARTED"    [2009-10-14 Wed 16:09]
+    - Note taken on [2009-10-14 Wed 16:09] \\
+      using org-git-open-file-internal
+    CLOCK: [2009-10-14 Wed 16:04]--[2009-10-14 Wed 16:09] =>  0:05
+    :END:
+*** DONE write helper function to split dir path into parent dir and rest
+    :LOGBOOK:
+    - State "DONE"       from "STARTED"    [2009-10-14 Wed 15:42]
+    CLOCK: [2009-10-14 Wed 15:25]--[2009-10-14 Wed 15:42] =>  0:17
+    CLOCK: [2009-10-14 Wed 14:27]--[2009-10-14 Wed 14:55] =>  0:28
+    :END:
+*** DONE write function which finds git-dir
+     :LOGBOOK:
+     - State "DONE"       from "STARTED"    [2009-10-14 Wed 15:59]
+     CLOCK: [2009-10-13 Tue 17:22]--[2009-10-13 Tue 18:10] =>  0:48
+     :END:
+** DONE Find way not not load identical files multiple times        :PROJECT:
+   :LOGBOOK:
+   - State "DONE"       from ""           [2009-10-14 Wed 22:23]
+   - Note taken on [2009-10-14 Wed 17:32] \\
+     branch uniquelink
+   :END:
+   At the moment, following the same link multiple times
+   generates a new temp directory and opens a new copy of the
+   file. However, we cannot simply check for an existing buffer
+   with the filename, since one important usecase is to open two
+   versions of the same file. One could presumably make a hash of
+   the file link, so that identical links are only opened once.
+   One would still open separate copies of the same files found
+   by different link types, though. The right way to do things
+   would be to check whether the sha1 of the blob objects are the
+   same. Here is one idea: Somehow find a way to get the sha1 of
+   the corresponding blob, then use that to construct the temp
+   dir. 
+*** DONE Find reliable test that no file is opened more than once
+    :LOGBOOK:
+    - State "DONE"       from "TODO"       [2009-10-14 Wed 22:07]
+    :END:
+*** DONE Make files read-only
+    :LOGBOOK:
+    - State "DONE"       from "TODO"       [2009-10-14 Wed 22:23]
+    :END:
+    Although this might clash with org-mode
+*** DONE change org-git-open-file-internal to reuse existing files
+    :LOGBOOK:
+    - State "DONE"       from "STARTED"    [2009-10-14 Wed 18:02]
+    CLOCK: [2009-10-14 Wed 17:54]--[2009-10-14 Wed 18:02] =>  0:08
+    CLOCK: [2009-10-14 Wed 17:40]--[2009-10-14 Wed 17:53] =>  0:13
+    :END:
+*** DONE Find out how to check for existing files or dirs 
+    :LOGBOOK:
+    - State "DONE"       from "STARTED"    [2009-10-14 Wed 17:40]
+    CLOCK: [2009-10-14 Wed 17:37]--[2009-10-14 Wed 17:40] =>  0:03
+    :END:
+#+begin_example 
+ -- Function: file-accessible-directory-p dirname
+     This function returns `t' if you have permission to open existing
+     files in the directory whose name as a file is DIRNAME; otherwise
+     (or if there is no such directory), it returns `nil'.  The value
+     of DIRNAME may be either a directory name (such as `/foo/') or the
+     file name of a file which is a directory (such as `/foo', without
+     the final slash).
+#+end_example
+*** DONE Find out how to construct a temp directory with a given name
+    :LOGBOOK:
+    - State "DONE"       from "STARTED"    [2009-10-14 Wed 17:36]
+    CLOCK: [2009-10-14 Wed 17:34]--[2009-10-14 Wed 17:36] =>  0:02
+    :END:
+    Temp dir is stored in variable =temporary-file-directory=
+*** DONE Find out how to extract the sha1 of the blob for a given object reference
+    :LOGBOOK:
+    - State "DONE"       from "TODO"       [2009-10-14 Wed 14:26]
+    :END:
+    git-rev-parse does this job:
+#+begin_example
+The git-rev-parse(1) command is a low-level command that is occasionally useful for translating some name for a commit to the object name for that commit:
+
+$git rev-parseorigin
+e05db0fd4f31dde7005f075a84f96b360d05984b
+#+end_example
+** DONE decide how to display commits
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2009-10-19 Mon 15:53]
+   - Note taken on [2009-10-13 Tue 15:19] \\
+     in a separate branch
+   :END:
+   We don't do anything special. Git links are only meant for
+   files. At the moment it simply shows the commit message and
+   the corresponding diff in a text file.
+** DONE Decide whether we need special export treatment
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2009-10-19 Mon 16:03]
+   :END:
+   See =export= argument in =org-add-link-type=. The right thing
+   to do would be to checkout the particular file (as we already
+   do) and export it. I might implement this later if somebody
+   needs it.
