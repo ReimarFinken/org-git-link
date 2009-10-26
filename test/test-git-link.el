@@ -138,22 +138,31 @@
   ;; cannot test org-store-link in non-interactive mode
   ;; (call-interactively does not work since interactive-p is nil
   ;; in batch mode)
+  (expect (true)
+    (find-file (concat git-test-src-dir "testgitrepos/b.txt"))
+    (call-interactively 'org-store-link) ; only interactive (non-batch) calls store in org-stored-links
+    (kill-buffer)
+    (switch-to-buffer (get-buffer-create "*expect org-git test*"))
+    (org-mode)
+    (with-mock (stub read-string => "")
+               (org-insert-link nil (car (car org-stored-links))))
+    (goto-char (point-min))
+    (org-open-at-point)
+    (get-buffer "b.txt")))
 
-  ;; (expect (true)
-  ;;   (find-file (concat git-test-src-dir "testgitrepos/b.txt"))
-  ;;   (org-store-link nil) ; only interactive calls store in org-stored-links
-  ;;   (kill-buffer)
-  ;;   (switch-to-buffer (get-buffer-create "*expect org-git test*"))
-  ;;   ('org-mode)
-  ;;   (org-insert-link nil (car (car org-stored-links)))
-  ;;   (goto-char (point-min))
-  ;;   (org-open-at-point)
-  ;;   (get-buffer "b.txt"))
-  )
-
-
-
-
+;; idea taken from the CEDET test suite
+(defun org-git-execute-tests ()
+  "Display a MESSAGE that some test is now finished.
+Argument STYLE is the type of build done."
+  (let ((res (expectations-execute nil))) ; res = errors + failures
+    (get-buffer expectations-result-buffer)
+    (when (zerop res)
+      (insert "\n\nWaiting 5 seconds before exiting with positive exit status.\n")
+      ;; Now wait.
+      (sit-for 5)
+      ;; 1 means GOOD to the shell script, since any other emacs exit
+      ;; mechanism will be 0. (ie - click on the X in the corner.)
+      (kill-emacs 1))))
 
 
 ;; (expectations-execute)                 ;  use C-M-x on expectations sexp instead

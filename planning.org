@@ -264,8 +264,9 @@ git show master~4:doc/ChangeLog
   [[git:org-git-link.org::master@{3.10.2009}]]
 
 * Tasks:
-** STARTED Create function which stores link to local file in current branch at current date :PROJECT:
+** DONE Create function which stores link to local file in current branch at current date :PROJECT:
    :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-26 Mon 16:50]
    CLOCK: [2009-10-26 Mon 14:18]--[2009-10-26 Mon 16:46] =>  2:28
    CLOCK: [2009-10-22 Thu 17:40]--[2009-10-22 Thu 18:09] =>  0:29
    CLOCK: [2009-10-22 Thu 16:34]--[2009-10-22 Thu 17:08] =>  0:34
