@@ -21,7 +21,7 @@
 
 ** Creating a Link type in org mode
    See [[info:org:Adding%20hyperlink%20types][info:org:Adding hyperlink types]] and
-#+begin_EXAMPLE 
+#+begin_EXAMPLE
 org-add-link-type is a compiled Lisp function in `org.el'.
 
 (org-add-link-type type &optional follow export)
@@ -54,7 +54,7 @@ type.  For a simple example of an export function, see `org-bbdb.el'.
     :ID:       83573d86-8df3-4f56-9927-a917e4b62509
     :END:
     From the man page of git-rev-parse:
-#+BEGIN_EXAMPLE 
+#+BEGIN_EXAMPLE
 SPECIFYING REVISIONS
        A revision parameter typically, but not necessarily, names a commit
        object. They use what is called an extended SHA1 syntax. Here are
@@ -187,9 +187,10 @@ SPECIFYING REVISIONS
            I = F^   = B^3^    = A^^3^
            J = F^2  = B^3^2   = A^^3^2
 #+END_EXAMPLE
+
 ** Viewing a specific version of a file in git:
     From the [[http://git.or.cz/gitwiki/GitFaq#Howtoviewanoldrevisionofafileordirectory.3F][Git FAQ]]:
-#+begin_EXAMPLE 
+#+begin_EXAMPLE
 How to view an old revision of a file or directory?
 
 Use command "git show" with a colon and filename:
@@ -208,6 +209,50 @@ git show master~4:
 git show master~4:doc/
 git show master~4:doc/ChangeLog
 #+end_EXAMPLE
+** Finding out the current branch name
+   #+BEGIN_EXAMPLE
+   git finken@larissa:~/test/org-git-link (0)$ git symbolic-ref HEAD
+   refs/heads/documentation
+   #+END_EXAMPLE
+   From magit.el:
+   #+BEGIN_SRC emacs-lisp
+     (defun magit-get-ref (ref)
+       (magit-git-string "symbolic-ref" "-q" ref))
+
+     (defun magit-get-current-branch ()
+       (let* ((head (magit-get-ref "HEAD"))
+              (pos (and head (string-match "^refs/heads/" head))))
+         (if pos
+             (substring head 11)
+           nil)))
+   #+END_SRC
+*** Find out currently checked out branch
+
+    Source: [2009-10-21 Wed], [[http://stackoverflow.com/questions/1593051/how-to-programmatically-determine-the-current-checked-out-git-branch][How to programmatically determine the current checked out Git branch - Stack Overflow]]
+
+    In a Unix or GNU scripting
+    environment (e.g. a Linux distro, Cygwin, OSX), what is the
+    best way to determine which Git branch is currently checked out
+    in a working directory? One use of this technique would be
+    automatically labeling a release (like svnversion would do with
+    Subversion). Please also see my related question: How to
+    programmatically determine whether a Git checkout is a tag, and
+    if so what is the tag name?
+
+    The correct solution is to take a peek at
+    contrib/completions/git-completion.bash does that for bash
+    prompt in __git_ps1. Removing all extras like selecting how to
+    describe detached HEAD situation, i.e. when we are on unnamed
+    branch, it is: branch_name="$(git symbolic-ref HEAD
+    2>/dev/null)" || branch_name="(unnamed branch)" # detached HEAD
+    branch_name=${branch_name##refs/heads/} git symbolic-ref is
+    used to extract fully qualified branch name from symbolic
+    reference; we use it for HEAD, which is currently checked out
+    branch. Alternate solution could be: branch_name=$(git
+    symbolic-ref -q HEAD) branch_name=${branch_name##refs/heads/}
+    branch_name=${branch_name:-HEAD} where in last line we deal
+    with the detached HEAD situation, using simply "HEAD" to denote
+    such situation.
 * Implementation
   - [[file:org-git-link.el][Source file]]
   - [[file:test/test-git-link.el][Test file]]
@@ -217,8 +262,22 @@ git show master~4:doc/ChangeLog
   [[git:test/testgitrepos/unicorn.png::]]
   [[gitbare:.git:::/Add]]
   [[git:org-git-link.org::master@{3.10.2009}]]
+
 * Tasks:
-** DONE Check out man pages of git-rev-parse 
+** STARTED Create function which stores link to local file in current branch at current date :PROJECT:
+   :LOGBOOK:
+   CLOCK: [2009-10-26 Mon 14:18]--[2009-10-26 Mon 16:46] =>  2:28
+   CLOCK: [2009-10-22 Thu 17:40]--[2009-10-22 Thu 18:09] =>  0:29
+   CLOCK: [2009-10-22 Thu 16:34]--[2009-10-22 Thu 17:08] =>  0:34
+   CLOCK: [2009-10-22 Thu 16:14]--[2009-10-22 Thu 16:23] =>  0:09
+   :END:
+   e.g [[git:foo.txt::master@{2009-10-5}]]
+** DONE Find out how magit knows about current branch
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-20 Tue 14:45]
+   CLOCK: [2009-10-20 Tue 14:30]--[2009-10-20 Tue 14:45] =>  0:15
+   :END:
+** DONE Check out man pages of git-rev-parse
    :LOGBOOK:
    - State "DONE"       from "STARTED"    [2009-07-24 Fri 17:08]
    CLOCK: [2009-07-24 Fri 16:55]--[2009-07-24 Fri 17:08] =>  0:13
@@ -232,7 +291,7 @@ git show master~4:doc/ChangeLog
    :END:
    No they don't. (Only creating their own commits). No help
    from there.
-** DONE Find out how to create new link types 
+** DONE Find out how to create new link types
    :LOGBOOK:
    - State "DONE"       from "STARTED"    [2009-07-24 Fri 15:54]
    CLOCK: [2009-07-24 Fri 15:46]--[2009-07-24 Fri 15:54] =>  0:08
@@ -269,7 +328,7 @@ git show master~4:doc/ChangeLog
    - State "DONE"       from "STARTED"    [2009-10-13 Tue 16:46]
    CLOCK: [2009-10-13 Tue 16:35]--[2009-10-13 Tue 16:46] =>  0:11
    :END:
-   
+
 ** DONE Specify link syntax
    :LOGBOOK:
    - State "DONE"       from "STARTED"    [2009-10-07 Wed 14:40]
@@ -318,7 +377,7 @@ git show master~4:doc/ChangeLog
    the commit (I think it is safe to restrict ourselves to file
    links). Unfortunately org-open-at-point does not return the
    buffer of the visited file (well it cannot, since it might be
-   displayed in an external program). 
+   displayed in an external program).
 ** DONE find way to extract filename from commit part
    :LOGBOOK:
    - State "DONE"       from "STARTED"    [2009-10-13 Tue 15:18]
@@ -340,7 +399,7 @@ git show master~4:doc/ChangeLog
      immediately by a slash. In this case we can use the search
      string as a filename.
    - [X] For our most important case (suffix colon followed by a
-     path) we can simply extract the part after the colon and use 
+     path) we can simply extract the part after the colon and use
      (file-name-nondirectory "lewis/foo") on that
    - [X] For a link to an index file in a merge (not very useful),
      taking the file name of the part after the last colon should
@@ -348,7 +407,6 @@ git show master~4:doc/ChangeLog
 ** DONE write test git directory
    :LOGBOOK:
    - State "DONE"       from "STARTED"    [2009-10-06 Tue 17:41]
-   CLOCK: [2009-10-06 Tue 17:22]
    :END:
 ** DONE rewriting history for private email address
    :LOGBOOK:
@@ -421,7 +479,7 @@ git show master~4:doc/ChangeLog
    would be to check whether the sha1 of the blob objects are the
    same. Here is one idea: Somehow find a way to get the sha1 of
    the corresponding blob, then use that to construct the temp
-   dir. 
+   dir.
 *** DONE Find reliable test that no file is opened more than once
     :LOGBOOK:
     - State "DONE"       from "TODO"       [2009-10-14 Wed 22:07]
@@ -437,12 +495,12 @@ git show master~4:doc/ChangeLog
     CLOCK: [2009-10-14 Wed 17:54]--[2009-10-14 Wed 18:02] =>  0:08
     CLOCK: [2009-10-14 Wed 17:40]--[2009-10-14 Wed 17:53] =>  0:13
     :END:
-*** DONE Find out how to check for existing files or dirs 
+*** DONE Find out how to check for existing files or dirs
     :LOGBOOK:
     - State "DONE"       from "STARTED"    [2009-10-14 Wed 17:40]
     CLOCK: [2009-10-14 Wed 17:37]--[2009-10-14 Wed 17:40] =>  0:03
     :END:
-#+begin_example 
+#+begin_example
  -- Function: file-accessible-directory-p dirname
      This function returns `t' if you have permission to open existing
      files in the directory whose name as a file is DIRNAME; otherwise

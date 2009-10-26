@@ -1,4 +1,3 @@
-
 ;; test-git-link.el -- test ../org-git-link.el
 (require 'cl)                           ;for flet and loop
 
@@ -12,22 +11,25 @@
   "Src dir to org-git testing suite.")
 
 (defvar gitdir (expand-file-name "../.git")
-  "Path to the git directory")          ; to prevent default-directory to change between calls
+  "Path to the git directory") ; to prevent default-directory to change between calls
+
+(defvar branchname (shell-command-to-string "./get-branch.sh"))
 
 (require 'org-git-link)		; after .. has been added to load-path
 (require 'el-expectations)	; after . has been added to load-path
 
 (setq inhibit-splash-screen t)		; for batch mode
+(setq debug-on-error t)
 
 (defun git-test-count-buffers (filename)
   "Returns the number of buffers visiting a certain filename."
   (loop for buf in (buffer-list)
-      for file = (buffer-file-name buf)
-      count (and file (string= filename (file-name-nondirectory file)))))
+        for file = (buffer-file-name buf)
+        count (and file (string= filename (file-name-nondirectory file)))))
 
 ;; test org link types
-;; org-open-link always returns nil, we therefore need to test the side effects. We do this by throwing the string and 
-(expectations 
+;; org-open-link always returns nil, we therefore need to test the side effects. We do this by throwing the string and
+(expectations
   (desc "org link types")
   (expect (error-message "~/foo/.git::brabranch:baz.txt")
     (flet ((org-gitbare-open (str)
@@ -85,32 +87,73 @@
     (org-git-link-filename "78981922613")) ; a.txt
   (desc "finding git directory")
   (expect '("/foo/bar/" "baz")
-          (org-git-split-dirpath "/foo/bar/baz/"))
+    (org-git-split-dirpath "/foo/bar/baz/"))
+  (expect '("/" "")
+    (org-git-split-dirpath "/"))        ; no upper directory
   (expect `(,gitdir "test/testgitrepos/a.txt")
-          (org-git-find-gitdir (expand-file-name "testgitrepos/a.txt" git-test-src-dir)))
+    (org-git-find-gitdir (expand-file-name "testgitrepos/a.txt" git-test-src-dir)))
   (expect `(,gitdir "test/testgitrepos/foo/bar/baz.txt")
-          (org-git-find-gitdir (expand-file-name "testgitrepos/foo/bar/baz.txt" git-test-src-dir)))
+    (org-git-find-gitdir (expand-file-name "testgitrepos/foo/bar/baz.txt" git-test-src-dir)))
+  (expect nil
+    (org-git-find-gitdir "/foo/bar/baz.txt")) ;not existing
   (desc "Git functions")
-  (expect "a\n" 
+  (expect "a\n"
     (with-temp-buffer
-      (let ((object "firstlevelfiles:test/testgitrepos/a.txt") 
-            (buffer (current-buffer))) 
-        (org-git-show gitdir object buffer)
-        (buffer-string)))) 
-  (expect "baz\n" 
-    (with-temp-buffer 
-      (let ((object "foobarbaztxt:test/testgitrepos/foo/bar/baz.txt") 
-            (buffer (current-buffer))) 
+      (let ((object "firstlevelfiles:test/testgitrepos/a.txt")
+            (buffer (current-buffer)))
         (org-git-show gitdir object buffer)
         (buffer-string))))
-  (expect (error) 
-    (with-temp-buffer 
-      (let ((object "deletebaztxt:test/testgitrepos/foo/bar/baz.txt") 
-            (buffer (current-buffer))) 
+  (expect "baz\n"
+    (with-temp-buffer
+      (let ((object "foobarbaztxt:test/testgitrepos/foo/bar/baz.txt")
+            (buffer (current-buffer)))
+        (org-git-show gitdir object buffer)
+        (buffer-string))))
+  (expect (error)
+    (with-temp-buffer
+      (let ((object "deletebaztxt:test/testgitrepos/foo/bar/baz.txt")
+            (buffer (current-buffer)))
         (org-git-show gitdir object buffer)
         (buffer-string))))
   (expect "78981922613b2afb6025042ff6bd878ac1994e85"
-    (org-git-blob-sha gitdir "firstlevelfiles:test/testgitrepos/a.txt")))
+    (org-git-blob-sha gitdir "firstlevelfiles:test/testgitrepos/a.txt"))
+  (desc "Storing link name")
+  (expect branchname
+    (org-git-get-current-branch gitdir))
+  (expect "2009-10-03"
+    (org-read-date nil nil "3 oct 2009"))
+  (expect "master@{2009-10-03}"
+    (org-git-create-searchstring "master" (org-read-date nil nil "3 oct 2009")))
+  (expect (concat "git:" git-test-src-dir "foo.txt::" (org-git-get-current-branch gitdir) "@{2009-10-03}")
+    (org-git-create-git-link (expand-file-name "foo.txt" git-test-src-dir) "3 oct 2009"))
+  (expect (true)
+    (org-git-gitrepos-p (expand-file-name "foo.txt" git-test-src-dir)))
+  (expect nil
+    (org-git-gitrepos-p "/foo/bar.txt"))
+  (desc "Storing and retrieving links")
+  (expect "git"
+    (find-file (concat git-test-src-dir "testgitrepos/b.txt"))
+    (org-store-link nil)
+    (plist-get org-store-link-plist :type))
+  ;; cannot test org-store-link in non-interactive mode
+  ;; (call-interactively does not work since interactive-p is nil
+  ;; in batch mode)
+
+  ;; (expect (true)
+  ;;   (find-file (concat git-test-src-dir "testgitrepos/b.txt"))
+  ;;   (org-store-link nil) ; only interactive calls store in org-stored-links
+  ;;   (kill-buffer)
+  ;;   (switch-to-buffer (get-buffer-create "*expect org-git test*"))
+  ;;   ('org-mode)
+  ;;   (org-insert-link nil (car (car org-stored-links)))
+  ;;   (goto-char (point-min))
+  ;;   (org-open-at-point)
+  ;;   (get-buffer "b.txt"))
+  )
+
+
+
+
+
 
 ;; (expectations-execute)                 ;  use C-M-x on expectations sexp instead
-

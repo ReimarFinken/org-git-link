@@ -24,20 +24,20 @@
 ;; type is meant to be used in the typical scenario and mimics the
 ;; `file' link syntax as closely as possible. The `gitbare' link
 ;; type exists mostly for debugging reasons, but also allows e.g.
-;; linking to files in a bare git repository for the experts. 
+;; linking to files in a bare git repository for the experts.
 
-;; * User friendy form 
+;; * User friendy form
 ;;   [[git:/path/to/file::searchstring]]
-  
+
 ;;   This form is the familiar from normal org file links
 ;;   including search options. However, its use is
 ;;   restricted to files in a working directory and does not
 ;;   handle bare repositories on purpose (see the bare form for
 ;;   that).
-  
+
 ;;   The search string references a commit (a tree-ish in Git
 ;;   terminology). The two most useful types of search strings are
-  
+
 ;;   - A symbolic ref name, usually a branch or tag name (e.g.
 ;;     master or nobelprize).
 ;;   - A ref followed by the suffix @ with a date specification
@@ -45,7 +45,7 @@
 ;;     weeks 3 days 1 hour 1 second ago} or {1979-02-26 18:30:00})
 ;;     to specify the value of the ref at a prior point in time
 ;;
-;; * Bare git form 
+;; * Bare git form
 ;;   [[gitbare:$GIT_DIR::$OBJECT]]
 ;;
 ;;    This is the more bare metal version, which gives the user most
@@ -61,11 +61,11 @@
 
 (require 'org)
 (defcustom org-git-program "git"
-  "Name of the git executable used to follow git links." 
+  "Name of the git executable used to follow git links."
   :type '(string)
   :group 'org)
 
-;; org link functions 
+;; org link functions
 ;; bare git link
 (org-add-link-type "gitbare" 'org-gitbare-open)
 
@@ -83,7 +83,7 @@
          (tmpfile (expand-file-name filename tmpdir)))
     (unless (file-readable-p tmpfile)
       (make-directory tmpdir)
-      (with-temp-file tmpfile 
+      (with-temp-file tmpfile
         (org-git-show gitdir object (current-buffer))))
     (org-open-file tmpfile)
     (set-buffer (get-file-buffer tmpfile))
@@ -91,6 +91,7 @@
 
 ;; user friendly link
 (org-add-link-type "git" 'org-git-open)
+
 (defun org-git-open (str)
   (let* ((strlist (org-git-split-string str))
          (filepath (first strlist))
@@ -115,22 +116,31 @@
   a pair (gitdir relpath), where gitdir is the path to the first
   .git subdirectory found updstream and relpath is the rest of
   the path. Example: (org-git-find-gitdir
-  \"~/gitrepos/foo/bar.txt\") returns '(\"/home/user/gitrepos/.git\" \"foo/bar.txt\")"
+  \"~/gitrepos/foo/bar.txt\") returns
+  '(\"/home/user/gitrepos/.git\" \"foo/bar.txt\"). When not in a git repository, return nil."
   (let ((dir (file-name-directory path))
         (relpath (file-name-nondirectory path)))
-    (while (not (file-exists-p (expand-file-name ".git" dir)))
-      (let ((dirlist (org-git-split-dirpath dir)))
-        (setq dir (first dirlist)
-              relpath (concat (file-name-as-directory (second dirlist)) relpath))))
-    (list (expand-file-name ".git" dir) relpath)))
+    (catch 'toplevel
+      (while (not (file-exists-p (expand-file-name ".git" dir)))
+        (let ((dirlist (org-git-split-dirpath dir)))
+          (when (string= (second dirlist) "") ; at top level
+            (throw 'toplevel nil))
+          (setq dir (first dirlist)
+                relpath (concat (file-name-as-directory (second dirlist)) relpath))))
+      (list (expand-file-name ".git" dir) relpath))))
 
-;; splitting the link string 
+
+(defalias 'org-git-gitrepos-p 'org-git-find-gitdir
+  "Return non-nil if path is in git repository")
+
+
+;; splitting the link string
 
 ;; Both link open functions are called with a string of
 ;; consisting of two parts separated by a double colon (::).
 (defun org-git-split-string (str)
   "Given a string of the form \"str1::str2\", return a list of
-  two substrings \'(\"str1\" \"str2\"). If the double colon is mising, take str2 to be the empty string." 
+  two substrings \'(\"str1\" \"str2\"). If the double colon is mising, take str2 to be the empty string."
   (let ((strlist (split-string str "::")))
     (cond ((= 1 (length strlist))
            (list (car strlist) ""))
@@ -148,24 +158,58 @@
                      (match-string 0 str)))
          (filename (and match (file-name-nondirectory match)))) ;extract the final part without slash
     filename))
+
+;; creating a link
+(defun org-git-create-searchstring (branch timestring)
+  (concat branch "@{" timestring "}"))
+
+
+(defun org-git-create-git-link (file &optional time)
+  "Create git link part to file at specific time"
+  (interactive "FFile: ")
+  (let* ((gitdir (first (org-git-find-gitdir file)))
+         (branchname (org-git-get-current-branch gitdir))
+         (timestring (if time (org-read-date nil nil time)
+                       (format-time-string "%Y-%m-%d" (current-time))))) ; probably needs rethinking in program logic
+    (org-make-link "git:" file "::" (org-git-create-searchstring branchname timestring))))
+
+(defun org-git-store-link ()
+  "Store git link to current file."
+  (let ((file (buffer-file-name)))
+    (when (org-git-gitrepos-p file)
+      (org-store-link-props
+       :type "git"
+       :link (org-git-create-git-link file)))))
+
+(add-hook 'org-store-link-functions 'org-git-store-link)
+
 
 ;; calling git
 (defun org-git-show (gitdir object buffer)
   "Show the output of git --git-dir=gidir show object in buffer."
-  (unless 
+  (unless
       (zerop (call-process org-git-program nil buffer nil
                            "--no-pager" (concat "--git-dir=" gitdir) "show" object))
-    (error "git error: %s " (save-excursion (set-buffer buffer) 
+    (error "git error: %s " (save-excursion (set-buffer buffer)
                                             (buffer-string)))))
 
 (defun org-git-blob-sha (gidir object)
   "Return sha of the referenced object"
-    (with-temp-buffer 
+    (with-temp-buffer
       (if (zerop (call-process org-git-program nil t nil
                                "--no-pager" (concat "--git-dir=" gitdir) "rev-parse" object))
           (buffer-substring (point-min) (1- (point-max))) ; to strip off final newline
         (error "git error: %s " (buffer-string)))))
 
+(defun org-git-get-current-branch (gitdir)
+  "Return the name of the current branch."
+  (with-temp-buffer
+    (if (not (zerop (call-process org-git-program nil t nil
+                                  "--no-pager" (concat "--git-dir=" gitdir) "symbolic-ref" "-q" "HEAD")))
+        (error "git error: %s " (buffer-string))
+      (goto-char (point-min))
+      (if (looking-at "^refs/heads/")   ; 11 characters
+          (buffer-substring 12 (1- (point-max))))))) ; to strip off final newline
+
 (provide 'org-git-link)
 ;;; org-git-link.el ends here
-
