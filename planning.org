@@ -264,6 +264,12 @@ git show master~4:doc/ChangeLog
   [[git:org-git-link.org::master@{3.10.2009}]]
 
 * Tasks:
+** DONE org-git-store-link: abbreviate file names
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-27 Tue 15:35]
+   CLOCK: [2009-10-27 Tue 15:33]--[2009-10-27 Tue 15:35] =>  0:02
+   :END:
+   org-store-link does this
 ** DONE Create interactive store-link function
    :LOGBOOK:
    - State "DONE"       from "STARTED"    [2009-10-27 Tue 14:53]
