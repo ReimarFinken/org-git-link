@@ -124,8 +124,8 @@
     (org-read-date nil nil "3 oct 2009"))
   (expect "master@{2009-10-03}"
     (org-git-create-searchstring "master" (org-read-date nil nil "3 oct 2009")))
-  (expect (concat "git:" git-test-src-dir "foo.txt::" (org-git-get-current-branch gitdir) "@{2009-10-03}")
-    (org-git-create-git-link (expand-file-name "foo.txt" git-test-src-dir) "3 oct 2009"))
+  (expect (concat "git:" git-test-src-dir "foo.txt::" (org-git-get-current-branch gitdir) (format-time-string "@{%Y-%m-%d}" (current-time)))
+    (org-git-create-git-link (expand-file-name "foo.txt" git-test-src-dir)))
   (expect (true)
     (org-git-gitrepos-p (expand-file-name "foo.txt" git-test-src-dir)))
   (expect nil
@@ -148,7 +148,11 @@
                (org-insert-link nil (car (car org-stored-links))))
     (goto-char (point-min))
     (org-open-at-point)
-    (get-buffer "b.txt")))
+    (get-buffer "b.txt"))
+  (expect "[[git:foo.txt::master][description]]"
+    (with-temp-buffer
+      (org-git-insert-link-interactively "foo.txt" "master" "description")
+      (buffer-string))))
 
 ;; idea taken from the CEDET test suite
 (defun org-git-execute-tests ()

@@ -164,13 +164,12 @@
   (concat branch "@{" timestring "}"))
 
 
-(defun org-git-create-git-link (file &optional time)
+(defun org-git-create-git-link (file)
   "Create git link part to file at specific time"
   (interactive "FFile: ")
   (let* ((gitdir (first (org-git-find-gitdir file)))
          (branchname (org-git-get-current-branch gitdir))
-         (timestring (if time (org-read-date nil nil time)
-                       (format-time-string "%Y-%m-%d" (current-time))))) ; probably needs rethinking in program logic
+         (timestring (format-time-string "%Y-%m-%d" (current-time))))
     (org-make-link "git:" file "::" (org-git-create-searchstring branchname timestring))))
 
 (defun org-git-store-link ()
@@ -183,8 +182,11 @@
 
 (add-hook 'org-store-link-functions 'org-git-store-link)
 
+(defun org-git-insert-link-interactively (file searchstring &optional description)
+  (interactive "FFile: \nsSearch string: \nsDescription: ")
+  (insert (org-make-link-string (org-make-link "git:" file "::" searchstring) description)))
 
-;; calling git
+;; Calling git
 (defun org-git-show (gitdir object buffer)
   "Show the output of git --git-dir=gidir show object in buffer."
   (unless

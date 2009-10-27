@@ -264,6 +264,13 @@ git show master~4:doc/ChangeLog
   [[git:org-git-link.org::master@{3.10.2009}]]
 
 * Tasks:
+** DONE Create interactive store-link function
+   :LOGBOOK:
+   - State "DONE"       from "STARTED"    [2009-10-27 Tue 14:53]
+   CLOCK: [2009-10-27 Tue 14:15]--[2009-10-27 Tue 14:53] =>  0:38
+   :END:
+   Interactively select file and write searchstring. Ideally with
+   completion (maybe later).
 ** DONE Create function which stores link to local file in current branch at current date :PROJECT:
    :LOGBOOK:
    - State "DONE"       from "STARTED"    [2009-10-26 Mon 16:50]
