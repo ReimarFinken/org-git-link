@@ -1,5 +1,5 @@
 #+TITLE: org-git-link.el -- link to specific git revisions
-#+OPTIONS: ^:{} author:nil
+#+OPTIONS: ^:{} author:nil toc:nil
 
 org-git-link allows linking to specific (git) versions of a file.
 
@@ -139,3 +139,26 @@ org-git-link allows linking to specific (git) versions of a file.
    search strings (e.g. once by branch name and once by tag). The
    file is supsequently opened using =org-open-file=, which does
    the right thing for non-text files as well.
+
+** Creating a git link
+
+   As an org mode is a simple text file, a git link can of course
+   be inserted directly as a string. For your convenience two functions creating links
+   automatically have been defined:
+
+   - org-git-store-link :: This function is automatically added
+        to =org-store-link-functions=. When =org-store-link=
+        (usually bound to =C-c l=) is called in a buffer whose
+        file is in a git repository, it creates a git link to the
+        file version corresponding to the current branchname and
+        date. The link is then added to =org-stored-links=, from
+        where it can be inserted with =org-insert-link(-global)=,
+        usually bound to =C-c C-l=.
+
+   - org-git-insert-link-interactively :: This function
+        interactively asks for a file name, a search string, and
+        a description. The corresponding link is then inserted at
+        point. Currently the only advantage over writing the link
+        directly is file completion. Completion of the search
+        string with the help of current tags and branch names
+        might be implemented at a later stage, if demand exists.
