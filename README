@@ -1,3 +1,4 @@
+# -*- mode: org; -*-
 #+TITLE: org-git-link.el -- link to specific git revisions
 #+OPTIONS: ^:{} author:nil toc:nil
 
