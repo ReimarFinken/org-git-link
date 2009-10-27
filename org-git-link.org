@@ -4,14 +4,14 @@
 org-git-link allows linking to specific (git) versions of a file.
 
 * Use case
-   
+
   Often one wants to link to a specific version of a reference
   document which may change in time. Thorsten Wagner described an
   important use case in his mailing list entry
   ([[http://permalink.gmane.org/gmane.emacs.orgmode/15774]]), namely
   linking to results in a lab book. Quote:
 
-  #+BEGIN_QUOTE 
+  #+BEGIN_QUOTE
   [...] Please think about the following situation: I have
   something like "... In the [graph] of the last results, a huge
   peak is observable due to measurement problems for the
@@ -49,14 +49,14 @@ org-git-link allows linking to specific (git) versions of a file.
   the syntax is defined more formally.
 
 ** Example
-  
+
    In the lab book use case described above assume that the org
    file in located in =/home/user/repo/planning/labbook.org= and
    the measurement data is visualized in
    =/home/user/repo/data/result.png=. The data is so exciting that
    the relevant commit has been tagged =nobelprize=. Then the
    links in a lab book entry could read any of the following:
-   #+BEGIN_EXAMPLE 
+   #+BEGIN_EXAMPLE
    - [[git:../data/result.png::master@{3.10.2009}]]
    - [[git:/home/user/repo/data/results.png::nobelprize]]
    - [[gitbare:../.git::nobelprize:data/results.png]]
@@ -68,15 +68,15 @@ org-git-link allows linking to specific (git) versions of a file.
    * [[git:answer.txt::firstround][Answer]] to  [[git:report.txt::firstround][Referee report]] of our paper
    * [[gitbare:/path/to/centralrepos.git::simulation.cpp][Simulation program]]
    #+END_EXAMPLE
- 
+
    In all these examples, the linked files do not even have to exist
    in the working repository, i.e. the links continue to work even
    after the files have been deleted.
 
 ** Formal specification
-      
+
 *** User friendy form
-    #+BEGIN_EXAMPLE 
+    #+BEGIN_EXAMPLE
     [[git:/path/to/file::searchstring]]
     #+END_EXAMPLE
     This form is the familiar from normal org file links
@@ -106,7 +106,7 @@ org-git-link allows linking to specific (git) versions of a file.
 
      - the directory exists and
      - whether a .git subdirectory exists.
-       
+
      If not, the procedure is iterated with the parent directory.
      The link path (which can be given as a local link) is thus
      separated into an absolute path GIT_DIR to the git directory
@@ -115,8 +115,8 @@ org-git-link allows linking to specific (git) versions of a file.
      : git --no-pager --git-dir=GIT_DIR/.git show SEARCHSTRING:RELPATH
 
 *** Bare git form
- 
-    #+BEGIN_EXAMPLE 
+
+    #+BEGIN_EXAMPLE
     [[gitbare:GIT_DIR::OBJECT]]
     #+END_EXAMPLE
     This is the more bare metal version, which gives the user most
