@@ -188,14 +188,14 @@
 
 ;; Calling git
 (defun org-git-show (gitdir object buffer)
-  "Show the output of git --git-dir=gidir show object in buffer."
+  "Show the output of git --git-dir=gitdir show object in buffer."
   (unless
       (zerop (call-process org-git-program nil buffer nil
                            "--no-pager" (concat "--git-dir=" gitdir) "show" object))
     (error "git error: %s " (save-excursion (set-buffer buffer)
                                             (buffer-string)))))
 
-(defun org-git-blob-sha (gidir object)
+(defun org-git-blob-sha (gitdir object)
   "Return sha of the referenced object"
     (with-temp-buffer
       (if (zerop (call-process org-git-program nil t nil
