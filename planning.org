@@ -1,3 +1,5 @@
+#+TODO: TODO STARTED | DONE
+#+TODO: IDEA BUG | DECLINED RESOLVED
 * References
 ** Testing whether git directory is valid
    Valid git directory can be tested with git-rev-parse
@@ -264,7 +266,14 @@ git show master~4:doc/ChangeLog
   [[git:org-git-link.org::master@{3.10.2009}]]
 
 * Tasks:
-** TODO org-git-insert-link-interacively: conditionally make file name relativie
+** IDEA Generalise to different VCS by only using vc.el infrastructure
+   Might be difficult to define a common interface for all VCS.
+   The link name must also change. Maybe we should revert to
+   file: and name the VCS in the search string?
+** TODO report a useful error message when trying to follow a non-existing git link
+   At the moment (v1.0) (I know, should be a git link), we get
+   wrong argument type (stringp, nil), when no git dir exists.
+** TODO org-git-insert-link-interacively: conditionally make file name relative
    To be consistent with =C-u C-c C-l= (org-insert-link):
 #+begin_example
 With a C-u prefix, prompts for a file to link to. The file name can
