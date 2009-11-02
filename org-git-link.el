@@ -174,11 +174,11 @@
 
 (defun org-git-store-link ()
   "Store git link to current file."
-  (let ((file (abbreviate-file-name (buffer-file-name))))
-    (when (org-git-gitrepos-p file)
+  (let ((file (buffer-file-name)))
+    (when (and file (org-git-gitrepos-p file))
       (org-store-link-props
        :type "git"
-       :link (org-git-create-git-link file)))))
+       :link (org-git-create-git-link (abbreviate-file-name file))))))
 
 (add-hook 'org-store-link-functions 'org-git-store-link)
 

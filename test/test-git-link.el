@@ -152,7 +152,11 @@
   (expect "[[git:foo.txt::master][description]]"
     (with-temp-buffer
       (org-git-insert-link-interactively "foo.txt" "master" "description")
-      (buffer-string))))
+      (buffer-string)))
+  (desc "Bugs")
+  (expect nil
+    (with-current-buffer "*scratch*"
+      (org-git-store-link))))
 
 ;; idea taken from the CEDET test suite
 (defun org-git-execute-tests ()

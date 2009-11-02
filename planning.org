@@ -277,7 +277,7 @@ git show master~4:doc/ChangeLog
    org-store-link-functions, or one could query the user wether a
    git link is wanted. Of course one could always customise
    everything in true org fashion.
-** BUG org-git-link messes up org-remember when remembering non-file buffers
+** RESOLVED org-git-link messes up org-remember when remembering non-file buffers
    :PROPERTIES:
    :ID:       a1b5ff42-8230-43b9-997d-dac8fc0fb383
    :END:
