@@ -266,6 +266,17 @@ git show master~4:doc/ChangeLog
   [[git:org-git-link.org::master@{3.10.2009}]]
 
 * Tasks:
+** BUG org-git-store-link interferes with other link storing mechanism
+   :PROPERTIES:
+   :ID:       6e7677d7-6f56-43fd-8c5b-c36d7db24706
+   :END:
+   With org-git-store-link at the beginning of
+   org-store-link-functions, one cannot easily store links by ids
+   to org entries, because org-id-store-link is never called. One
+   could add org-git-store-link at the end of
+   org-store-link-functions, or one could query the user wether a
+   git link is wanted. Of course one could always customise
+   everything in true org fashion.
 ** BUG org-git-link messes up org-remember when remembering non-file buffers
    :PROPERTIES:
    :ID:       a1b5ff42-8230-43b9-997d-dac8fc0fb383
