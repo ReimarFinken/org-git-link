@@ -27,6 +27,8 @@
         for file = (buffer-file-name buf)
         count (and file (string= filename (file-name-nondirectory file)))))
 
+(setq org-git-store-activate t)         ; unless set otherwise.
+
 ;; test org link types
 ;; org-open-link always returns nil, we therefore need to test the side effects. We do this by throwing the string and
 (expectations
@@ -156,6 +158,10 @@
   (desc "Bugs")
   (expect nil
     (with-current-buffer "*scratch*"
+      (org-git-store-link)))
+  (expect nil
+    (let ((org-git-store-activate nil))
+      (find-file (concat git-test-src-dir "testgitrepos/b.txt"))
       (org-git-store-link))))
 
 ;; idea taken from the CEDET test suite

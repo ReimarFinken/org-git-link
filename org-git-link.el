@@ -65,6 +65,17 @@
   :type '(string)
   :group 'org)
 
+(defcustom org-git-store-activate 'ask
+  "*Variable controlling whether org-store-link stores a git link.
+  `t' means always store a git link (this might override other
+  possibilities, such as linking to org entries by id). `nil'
+  means never store git links. The symbol `ask' means ask the
+  user whether a link should be stored."
+  :type '(choice (const :tag "Always" t)
+                (const :tag "Never" nil)
+                (const :tag "Ask" ask))
+  :group 'org)
+
 ;; org link functions
 ;; bare git link
 (org-add-link-type "gitbare" 'org-gitbare-open)
@@ -175,10 +186,12 @@
 (defun org-git-store-link ()
   "Store git link to current file."
   (let ((file (buffer-file-name)))
-    (when (and file (org-git-gitrepos-p file))
-      (org-store-link-props
-       :type "git"
-       :link (org-git-create-git-link (abbreviate-file-name file))))))
+    (when (and file (org-git-gitrepos-p file) ; are we actually responsible
+               (or (eq org-git-store-activate t)
+                   (and (eq org-git-store-activate 'ask) (y-or-n-p "Create git link? "))))
+        (org-store-link-props
+         :type "git"
+         :link (org-git-create-git-link (abbreviate-file-name file))))))
 
 (add-hook 'org-store-link-functions 'org-git-store-link)
 
