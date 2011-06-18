@@ -88,7 +88,8 @@
 
 
 (defun org-git-open-file-internal (gitdir object)
-  (let* ((sha (org-git-blob-sha gitdir object))
+  (let* ((gitdir (expand-file-name gitdir))
+         (sha (org-git-blob-sha gitdir object))
          (tmpdir (concat temporary-file-directory "org-git-" sha))
          (filename (org-git-link-filename object))
          (tmpfile (expand-file-name filename tmpdir)))
