@@ -46,10 +46,11 @@
 ;;     to specify the value of the ref at a prior point in time
 ;;
 ;; * Bare git form
-;;   [[gitbare:$GIT_DIR::$OBJECT]]
+;;   [[gitbare[:$ACCESS_POINT]:$GIT_DIR::$OBJECT]]
 ;;
 ;;    This is the more bare metal version, which gives the user most
-;;    control. It directly translates to the git command
+;;    control. For the default access-point (localhost) it directly
+;;    translates to the git command
 ;;    git --no-pager --git-dir=$GIT_DIR show $OBJECT
 ;;    Using this version one can also view files from a bare git
 ;;    repository. For detailed information on how to specify an
@@ -170,7 +171,7 @@ missing, take str2 to be the empty string. If the single colon is missing, take
 str1 to be \"localhost\"."
   (let* ((strlist (split-string str "::"))
          (strlist2 (split-string (car strlist) ":"))
-         (strlist3 (cond 
+         (strlist3 (cond
                     ((= 1 (length strlist2))
                      (list "localhost" (car strlist2)))
                     ((= 2 (length strlist2))
