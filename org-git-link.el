@@ -46,10 +46,11 @@
 ;;     to specify the value of the ref at a prior point in time
 ;;
 ;; * Bare git form
-;;   [[gitbare:$GIT_DIR::$OBJECT]]
+;;   [[gitbare[:$ACCESS_POINT]:$GIT_DIR::$OBJECT]]
 ;;
 ;;    This is the more bare metal version, which gives the user most
-;;    control. It directly translates to the git command
+;;    control. For the default access-point (localhost) it directly
+;;    translates to the git command
 ;;    git --no-pager --git-dir=$GIT_DIR show $OBJECT
 ;;    Using this version one can also view files from a bare git
 ;;    repository. For detailed information on how to specify an
@@ -64,6 +65,11 @@
   "Name of the git executable used to follow git links."
   :type '(string)
   :group 'org)
+(defcustom org-access-program "ssh"
+  "Name of the executable used to follow non-local links."
+  :type '(string)
+  :group 'org)
+
 
 (defcustom org-git-store-activate 'ask
   "*Variable controlling whether org-store-link stores a git link.
@@ -82,20 +88,24 @@
 
 (defun org-gitbare-open (str)
   (let* ((strlist (org-git-split-string str))
-         (gitdir (first strlist))
-         (object (second strlist)))
-    (org-git-open-file-internal gitdir object)))
+         (access-point (first strlist))
+         (gitdir (second strlist))
+         (object (third strlist)))
+    (org-git-open-file-internal access-point gitdir object)))
 
 
-(defun org-git-open-file-internal (gitdir object)
-  (let* ((sha (org-git-blob-sha gitdir object))
+(defun org-git-open-file-internal (access-point gitdir object)
+  (let* ((gitdir (if (string= access-point "localhost")
+                     (expand-file-name (substitute-in-file-name gitdir))
+                   gitdir))
+         (sha (org-git-blob-sha access-point gitdir object))
          (tmpdir (concat temporary-file-directory "org-git-" sha))
          (filename (org-git-link-filename object))
          (tmpfile (expand-file-name filename tmpdir)))
     (unless (file-readable-p tmpfile)
       (make-directory tmpdir)
       (with-temp-file tmpfile
-        (org-git-show gitdir object (current-buffer))))
+        (org-git-show access-point gitdir object (current-buffer))))
     (org-open-file tmpfile)
     (set-buffer (get-file-buffer tmpfile))
     (setq buffer-read-only t)))
@@ -103,14 +113,18 @@
 ;; user friendly link
 (org-add-link-type "git" 'org-git-open)
 
+(require 'cl) ;; needed for assert macro
+
 (defun org-git-open (str)
   (let* ((strlist (org-git-split-string str))
-         (filepath (first strlist))
-         (commit (second strlist))
+         (access-point (first strlist))
+         (filepath (second strlist))
+         (commit (third strlist))
          (dirlist (org-git-find-gitdir filepath))
          (gitdir (first dirlist))
          (relpath (second dirlist)))
-    (org-git-open-file-internal gitdir (concat commit ":" relpath))))
+    (assert (string= access-point "localhost"))
+    (org-git-open-file-internal access-point gitdir (concat commit ":" relpath))))
 
 
 ;; Utility functions (file names etc)
@@ -151,13 +165,22 @@
 ;; Both link open functions are called with a string of
 ;; consisting of two parts separated by a double colon (::).
 (defun org-git-split-string (str)
-  "Given a string of the form \"str1::str2\", return a list of
-  two substrings \'(\"str1\" \"str2\"). If the double colon is mising, take str2 to be the empty string."
-  (let ((strlist (split-string str "::")))
+  "Given a string of the form \"str1:str2::str3\", return a list of
+  three substrings \'(\"str1\" \"str2\" \"str3\"). If the double colon is
+missing, take str2 to be the empty string. If the single colon is missing, take
+str1 to be \"localhost\"."
+  (let* ((strlist (split-string str "::"))
+         (strlist2 (split-string (car strlist) ":"))
+         (strlist3 (cond
+                    ((= 1 (length strlist2))
+                     (list "localhost" (car strlist2)))
+                    ((= 2 (length strlist2))
+                     strlist2)))
+         )
     (cond ((= 1 (length strlist))
-           (list (car strlist) ""))
+           (append strlist3 '("")))
           ((= 2 (length strlist))
-           strlist)
+           (append strlist3 (cdr strlist)))
           (t (error "org-git-split-string: only one :: allowed: %s" str)))))
 
 ;; finding the file name part of a commit
@@ -201,19 +224,35 @@
   (insert (org-make-link-string (org-make-link "git:" file "::" searchstring) description)))
 
 ;; Calling git
-(defun org-git-show (gitdir object buffer)
+(defun org-git-show (access-point gitdir object buffer)
   "Show the output of git --git-dir=gitdir show object in buffer."
   (unless
-      (zerop (call-process org-git-program nil buffer nil
-                           "--no-pager" (concat "--git-dir=" gitdir) "show" object))
+      (zerop (if (string= access-point "localhost")
+                 (call-process org-git-program nil buffer nil
+                               "--no-pager" (concat "--git-dir=" gitdir) "show"
+                               object)
+               (call-process org-access-program nil buffer nil
+                             access-point (concat "git " "--no-pager " (concat
+                                                                        "--git-dir="
+                                                                        gitdir)
+                                                  " show "  object)))
+             )
     (error "git error: %s " (save-excursion (set-buffer buffer)
                                             (buffer-string)))))
 
-(defun org-git-blob-sha (gitdir object)
+(defun org-git-blob-sha (access-point gitdir object)
   "Return sha of the referenced object"
     (with-temp-buffer
-      (if (zerop (call-process org-git-program nil t nil
-                               "--no-pager" (concat "--git-dir=" gitdir) "rev-parse" object))
+      (if (zerop (if (string= access-point "localhost")
+                     (call-process org-git-program nil t nil
+                                   "--no-pager" (concat "--git-dir=" gitdir)
+                                   "rev-parse" object)
+                   (call-process org-access-program nil t nil
+                                 access-point (concat "git " "--no-pager "
+                                                      (concat "--git-dir="
+                                                              gitdir)
+                                   " rev-parse " object)))
+           )
           (buffer-substring (point-min) (1- (point-max))) ; to strip off final newline
         (error "git error: %s " (buffer-string)))))
 
